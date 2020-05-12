@@ -20,7 +20,7 @@ This is the next generation of the popular [tornadofx](https://github.com/edvin/
 
 * JDK 10+
 * [Kotlin 1.3+](https://kotlinlang.org/)
-* [JavaFX](https://openjfx.io/)
+* [JavaFX 13+](https://openjfx.io/)
 
 ## Feature Requests and Bugs
 
