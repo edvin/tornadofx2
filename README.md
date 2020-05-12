@@ -19,12 +19,12 @@ This is the next generation of the popular [tornadofx](https://github.com/edvin/
 ## Requirements
 
 * JDK 10+
-* [Kotlin](https://kotlinlang.org/)
+* [Kotlin 1.3+](https://kotlinlang.org/)
 * [JavaFX](https://openjfx.io/)
 
-## Features Requests and Bugs
+## Feature Requests and Bugs
 
-Please use the GitHub issues for all feature requests and bugs.
+Please use the GitHub [issues](https://github.com/edvin/tornadofx2/issues) for all feature requests and bugs.
 
 ## Maintainers
 
