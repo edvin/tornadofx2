@@ -474,23 +474,3 @@ fun loadJsonArray(input: InputStream) = Json.createReader(input).use { it.readAr
  * Load a JsonArray from the given path with the optional OpenOptions
  */
 fun loadJsonArray(path: Path, vararg options: OpenOption = arrayOf(READ)) = Files.newInputStream(path, *options).use { loadJsonArray(it) }
-
-/**
- * Load a JsonModel of the given type from the given URL
- */
-inline fun <reified T : JsonModel> loadJsonModel(url: URL) = loadJsonObject(url).toModel<T>()
-
-/**
- * Load a JsonModel of the given type from the given InputStream
- */
-inline fun <reified T : JsonModel> loadJsonModel(input: InputStream) = loadJsonObject(input).toModel<T>()
-
-/**
- * Load a JsonModel of the given type from the given path with the optional OpenOptions
- */
-inline fun <reified T : JsonModel> loadJsonModel(path: Path, vararg options: OpenOption = arrayOf(READ)) = loadJsonObject(path, *options).toModel<T>()
-
-/**
- * Load a JsonModel from the given String source
- */
-inline fun <reified T : JsonModel> loadJsonModel(source: String) = loadJsonObject(source).toModel<T>()
