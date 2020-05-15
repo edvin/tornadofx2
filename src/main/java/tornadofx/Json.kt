@@ -2,6 +2,8 @@ package tornadofx
 
 import javafx.beans.property.*
 import javafx.beans.value.ObservableValue
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import tornadofx.FX.Companion.log
 import tornadofx.JsonConfig.AddEmptyStrings
 import java.io.InputStream
@@ -474,3 +476,13 @@ fun loadJsonArray(input: InputStream) = Json.createReader(input).use { it.readAr
  * Load a JsonArray from the given path with the optional OpenOptions
  */
 fun loadJsonArray(path: Path, vararg options: OpenOption = arrayOf(READ)) = Files.newInputStream(path, *options).use { loadJsonArray(it) }
+
+inline fun <reified T : JsonModel> JsonObject.toModel(): T {
+    val model = T::class.java.newInstance()
+    model.updateModel(this)
+    return model
+}
+
+inline fun <reified T : JsonModel> JsonArray.toModel(): ObservableList<T> {
+    return FXCollections.observableArrayList(map { (it as JsonObject).toModel<T>() })
+}

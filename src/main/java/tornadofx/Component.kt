@@ -111,6 +111,8 @@ class ConfigProperties(val configurable: Configurable) : Properties(), Closeable
     fun int(key: String, defaultValue: Int): Int = int(key) ?: defaultValue
     fun jsonObject(key: String) = getProperty(key)?.let { Json.createReader(StringReader(it)).readObject() }
     fun jsonArray(key: String) = getProperty(key)?.let { Json.createReader(StringReader(it)).readArray() }
+    inline fun <reified M : JsonModel> jsonModel(key: String) = jsonObject(key)?.toModel<M>()
+    inline fun <reified M : JsonModel> jsonModels(key: String) = jsonArray(key)?.toModel<M>()
 
     fun save() {
         val path = configurable.configPath.apply { if (!Files.exists(parent)) Files.createDirectories(parent) }
