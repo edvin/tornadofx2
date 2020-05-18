@@ -2,6 +2,8 @@ package tornadofx
 
 import javafx.beans.property.*
 import javafx.beans.value.ObservableValue
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import tornadofx.FX.Companion.log
 import tornadofx.JsonConfig.AddEmptyStrings
 import java.io.InputStream
@@ -475,22 +477,12 @@ fun loadJsonArray(input: InputStream) = Json.createReader(input).use { it.readAr
  */
 fun loadJsonArray(path: Path, vararg options: OpenOption = arrayOf(READ)) = Files.newInputStream(path, *options).use { loadJsonArray(it) }
 
-/**
- * Load a JsonModel of the given type from the given URL
- */
-inline fun <reified T : JsonModel> loadJsonModel(url: URL) = loadJsonObject(url).toModel<T>()
+inline fun <reified T : JsonModel> JsonObject.toModel(): T {
+    val model = T::class.java.newInstance()
+    model.updateModel(this)
+    return model
+}
 
-/**
- * Load a JsonModel of the given type from the given InputStream
- */
-inline fun <reified T : JsonModel> loadJsonModel(input: InputStream) = loadJsonObject(input).toModel<T>()
-
-/**
- * Load a JsonModel of the given type from the given path with the optional OpenOptions
- */
-inline fun <reified T : JsonModel> loadJsonModel(path: Path, vararg options: OpenOption = arrayOf(READ)) = loadJsonObject(path, *options).toModel<T>()
-
-/**
- * Load a JsonModel from the given String source
- */
-inline fun <reified T : JsonModel> loadJsonModel(source: String) = loadJsonObject(source).toModel<T>()
+inline fun <reified T : JsonModel> JsonArray.toModel(): ObservableList<T> {
+    return FXCollections.observableArrayList(map { (it as JsonObject).toModel<T>() })
+}
