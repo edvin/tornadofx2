@@ -11,6 +11,3 @@ target/
 .settings/
 .project
 .classpath
-
-# Test
-example-table.png
