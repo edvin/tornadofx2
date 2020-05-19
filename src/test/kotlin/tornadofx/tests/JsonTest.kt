@@ -46,6 +46,91 @@ class JsonTest {
         fun globalProperty() = getProperty(AutoPerson2::global)
     }
 
+
+    @Test
+    fun automodel() {
+        val p = AutoPerson().apply {
+            firstName = "John"
+            lastName = "Doe"
+            dob = LocalDate.of(1970, 6, 12)
+            type = 42
+            global = true
+        }
+        val json = """{"dob":"1970-06-12","firstName":"John","global":true,"lastName":"Doe","type":42}"""
+        Assert.assertEquals(json, p.toJSON().toString())
+        val l = loadJsonModel<AutoPerson>(json)
+        Assert.assertEquals("John", l.firstName)
+        Assert.assertEquals("Doe", l.lastName)
+        Assert.assertEquals(LocalDate.of(1970, 6, 12), l.dob)
+        Assert.assertEquals(42, l.type)
+        Assert.assertEquals(true, l.global)
+        Assert.assertEquals(json, l.toJSON().toString())
+    }
+
+    @Test
+    fun automodelRoundTrip() {
+        val writtenP = AutoPerson().apply {
+            firstName = "John"
+            lastName = "Doe"
+            dob = LocalDate.of(1970, 6, 12)
+            type = 42
+            global = true
+        }
+        val j = writtenP.toJSON().toString()
+        val readP = loadJsonModel<AutoPerson>(j)
+        val rewrittenJ = readP.toJSON().toString()
+
+        Assert.assertEquals("John", readP.firstName)
+        Assert.assertEquals("Doe", readP.lastName)
+        Assert.assertEquals(LocalDate.of(1970, 6, 12), readP.dob)
+        Assert.assertEquals(42, readP.type)
+        Assert.assertEquals(true, readP.global)
+        Assert.assertEquals(j, rewrittenJ)
+
+    }
+
+    @Test
+    fun automodel2() {
+        val p = AutoPerson2().apply {
+            firstName = "John"
+            lastName = "Doe"
+            dob = LocalDate.of(1970, 6, 12)
+            type = 42
+            global = true
+        }
+        val json = """{"dob":"1970-06-12","firstName":"John","global":true,"lastName":"Doe","type":42}"""
+        Assert.assertEquals(json, p.toJSON().toString())
+        val l = loadJsonModel<AutoPerson2>(json)
+        Assert.assertEquals("John", l.firstName)
+        Assert.assertEquals("Doe", l.lastName)
+        Assert.assertEquals(LocalDate.of(1970, 6, 12), l.dob)
+        Assert.assertEquals(42, l.type)
+        Assert.assertEquals(true, l.global)
+        Assert.assertEquals(json, l.toJSON().toString())
+    }
+
+    @Test
+    fun automodelRoundTrip2() {
+        val writtenP = AutoPerson2().apply {
+            firstName = "John"
+            lastName = "Doe"
+            dob = LocalDate.of(1970, 6, 12)
+            type = 42
+            global = true
+        }
+        val j = writtenP.toJSON().toString()
+        val readP = loadJsonModel<AutoPerson2>(j)
+        val rewrittenJ = readP.toJSON().toString()
+
+        Assert.assertEquals("John", readP.firstName)
+        Assert.assertEquals("Doe", readP.lastName)
+        Assert.assertEquals(LocalDate.of(1970, 6, 12), readP.dob)
+        Assert.assertEquals(42, readP.type)
+        Assert.assertEquals(true, readP.global)
+        Assert.assertEquals(j, rewrittenJ)
+
+    }
+
     @Test
     fun firstAvailable() {
         val json = loadJsonObject("""{"dob":"1970-06-12","firstName":"John","global":true,"lastName":"Doe","type":42}""")
