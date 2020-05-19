@@ -2,7 +2,7 @@
 
 A JavaFX framework for Kotlin (Java 10+)
 
-This is the next generation of the popular [tornadofx](https://github.com/edvin/tornadofx) project (Java 9). There are breaking changes in this project from the original project.
+This is the next generation of the popular [tornadofx](https://github.com/edvin/tornadofx) project (Java 9).
 
 ## Features
 
