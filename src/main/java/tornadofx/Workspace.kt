@@ -4,6 +4,7 @@ import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.value.ChangeListener
 import javafx.collections.FXCollections
 import javafx.geometry.Pos
 import javafx.geometry.Side
@@ -19,6 +20,7 @@ import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
 import tornadofx.Workspace.NavigationMode.Stack
+import tornadofx.Workspace.NavigationMode.Tabs
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
@@ -279,12 +281,10 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
                 inDynamicComponentMode {
                     if (contentContainer == stackContainer) {
                         tabContainer.tabs.clear()
-
                         stackContainer.clear()
                         stackContainer += child
                     } else {
                         stackContainer.clear()
-
                         var tab = tabContainer.tabs.find { it.content == child.root }
                         if (tab == null) {
                             tabContainer += child
@@ -293,6 +293,7 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
                             child.callOnDock()
                         }
                         tabContainer.selectionModel.select(tab)
+                        if (!child.isDocked) child.callOnDock()
                     }
                 }
             }
@@ -310,7 +311,15 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
             }
             dockedComponent?.also {
                 dockedComponentProperty.value = null
-                dock(it, true)
+                if (oldMode == Stack && newMode == Tabs) {
+                    val listener = it.properties["tornadofx.rootParentChangeListener"] as ChangeListener<Parent>
+                    it.root.parentProperty().removeListener(listener)
+                    it.callOnUndock()
+                    dock(it, true)
+                    it.root.parentProperty().addListener(listener)
+                } else {
+                    dock(it, true)
+                }
             }
         }
         if (newMode == Stack) {
