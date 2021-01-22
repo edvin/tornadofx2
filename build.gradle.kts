@@ -1,3 +1,4 @@
+import org.javamodularity.moduleplugin.extensions.TestModuleOptions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -47,11 +48,15 @@ dependencies {
     implementation("de.jensd:fontawesomefx-fontawesome:${fontawesomefx_version}")
 
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}")
-    testImplementation("org.testfx:testfx-junit:${testfx_version}")
     testImplementation("org.hamcrest:hamcrest:2.2")
     testImplementation("org.hamcrest:hamcrest-library:2.2")
     testImplementation("junit:junit:${junit_version}")
+    testImplementation("org.testfx:testfx-junit:${testfx_version}")
 
+}
+
+sourceSets {
+    getByName("test").java.srcDirs("src/test/kotlin")
 }
 
 //val patchArgs = listOf(
@@ -61,9 +66,10 @@ dependencies {
 //    "--add-reads","tornadofx=jdk.httpserver"
 //)
 tasks.test {
-    extensions.configure(org.javamodularity.moduleplugin.extensions.TestModuleOptions::class) {
+    extensions.configure(TestModuleOptions::class) {
         runOnClasspath = true
     }
+    testLogging.showStandardStreams = true
 }
 
 //tasks.withType<Test> {
