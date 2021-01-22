@@ -197,22 +197,23 @@ class FX {
          */
         private fun loadMessages() {
             val globalName = messagesNameProvider(null)
-            val bundle = if (this::class.java.module.isNamed) {
-                ResourceBundle.getBundle(
+            val bundle: () -> ResourceBundle = {
+                if (this::class.java.module.isNamed) {
+                    ResourceBundle.getBundle(
                         globalName,
                         locale,
                         this::class.java.module
-                )
-            } else {
-                ResourceBundle.getBundle(
+                    )
+                } else {
+                    ResourceBundle.getBundle(
                         globalName,
                         locale,
                         this::class.java.classLoader,
                         FXResourceBundleControl
-                )
+                    )
+                }
             }
-
-            messages = runCatching { bundle }
+            messages = runCatching { bundle() }
                     .onFailure { log.fine("No global '$globalName' found in locale $locale, using empty bundle") }
                     .getOrDefault(EmptyResourceBundle)
         }
