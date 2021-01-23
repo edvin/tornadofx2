@@ -1,5 +1,8 @@
-# Maven.
+# all target dirs
 target/
+build/
+out/
+bin/
 
 # IntelliJ.
 .idea/
@@ -11,3 +14,10 @@ target/
 .settings/
 .project
 .classpath
+
+# gradle
+.gradle/
+# !gradle-wrapper.jar
+gradle/
+gradlew.*
+gradlew

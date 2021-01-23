@@ -5,26 +5,25 @@ plugins {
     kotlin("jvm") version "1.3.61"
     `java-library`
     id("org.openjfx.javafxplugin") version "0.0.9"
+    `maven-publish`
+//    signing
 }
-
+//see gradle.properties
 val tornado_version: String by project
 val kotlin_version: String by project
 val json_version: String by project
 val dokka_version: String by project
 val httpclient_version: String by project
 val felix_framework_version: String by project
-val junit_version: String by project
+val junit4_version: String by project
+val junit5_version: String by project
 val testfx_version: String by project
+val hamcrest_version: String by project
 val fontawesomefx_version: String by project
 
 group = "no.tornado"
-version = "2.0.0-SNAPSHOT"
+version = "2.0.1-SNAPSHOT"
 description = "JavaFX Framework for Kotlin"
-
-javafx {
-    version = "11.0.2"
-    modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing", "javafx.web", "javafx.media")
-}
 
 repositories {
     mavenLocal()
@@ -36,54 +35,19 @@ repositories {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}")
+    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}")
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
-//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:${kotlin_version}")
 
-    implementation("no.tornado:tornadofx2:${tornado_version}")
-
-    implementation("org.glassfish:javax.json:${json_version}")
-    implementation("org.apache.httpcomponents:httpclient:${httpclient_version}")
+    api("org.glassfish:javax.json:${json_version}")
+    api("org.apache.httpcomponents:httpclient:${httpclient_version}")
     implementation("org.apache.felix:org.apache.felix.framework:${felix_framework_version}")
     implementation("de.jensd:fontawesomefx-fontawesome:${fontawesomefx_version}")
-
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:${kotlin_version}")
-    testImplementation("org.hamcrest:hamcrest:2.2")
-    testImplementation("org.hamcrest:hamcrest-library:2.2")
-    testImplementation("junit:junit:${junit_version}")
-    testImplementation("org.testfx:testfx-junit:${testfx_version}")
-
 }
 
-sourceSets {
-    getByName("test").java.srcDirs("src/test/kotlin")
+javafx {
+    version = "11.0.2"
+    modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing", "javafx.web", "javafx.media")
 }
-
-//val patchArgs = listOf(
-//    "--add-exports","javafx.graphics/com.sun.javafx.application=ALL-UNNAMED",
-//    "--add-exports","tornadofx/tornadofx.tests=kotlin.reflect",
-//    "--add-opens","tornadofx/tornadofx.tests=javafx.base",
-//    "--add-reads","tornadofx=jdk.httpserver"
-//)
-tasks.test {
-    extensions.configure(TestModuleOptions::class) {
-        runOnClasspath = true
-    }
-    testLogging.showStandardStreams = true
-}
-
-//tasks.withType<Test> {
-//    useJUnitPlatform()
-//}
-//
-//dependencies {
-//    testImplementation(platform("org.junit:junit-bom:5.7.0"))
-//    testImplementation("org.junit.jupiter:junit-jupiter")
-//
-//    testImplementation("io.kotlintest:kotlintest-runner-junit5:3.3.0")
-//    testImplementation("org.testfx:testfx-junit5:4.0.16-alpha")
-//    testImplementation("org.hamcrest:hamcrest:2.1")
-//}
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
@@ -99,3 +63,98 @@ tasks.jar {
         )
     }
 }
+
+/**
+ * Testing
+ */
+sourceSets {
+    getByName("test").java.srcDirs("src/test/kotlin")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
+    //no modules yet
+    extensions.configure(TestModuleOptions::class) {
+        runOnClasspath = true
+    }
+}
+
+dependencies {
+    //common
+    testImplementation("org.hamcrest:hamcrest:${hamcrest_version}")
+    testImplementation("org.hamcrest:hamcrest-library:${hamcrest_version}")
+    testImplementation("org.testfx:testfx-junit5:${testfx_version}")
+    //Junit 5
+    testImplementation(platform("org.junit:junit-bom:${junit5_version}"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5:${kotlin_version}")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
+    //Junit 4
+    testCompileOnly("junit:junit:${junit4_version}")
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+}
+
+/**
+ * Publishing
+ */
+publishing {
+    repositories {
+        maven {
+            name = "release"
+            description = "Release repository"
+            val releasesRepoUrl = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2/")
+            val snapshotsRepoUrl = uri("https://oss.sonatype.org/content/repositories/snapshots")
+            url = if(version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl
+//            credentials {
+//                username = scdUserName
+//                password = scdPassword
+//            }
+        }
+    }
+    publications {
+        create<MavenPublication>("tornadofx") {
+            from(components["java"])
+            pom {
+                developers {
+                    developer {
+                        name.set("Edvin Syse")
+                        email.set("es@syse.no")
+                        organization.set("SYSE AS")
+                        organizationUrl.set("https://www.syse.no")
+                    }
+                    developer {
+                        name.set("Thomas Nield")
+                        email.set("thomasnield@live.com")
+                        organization.set("Southwest Airlines")
+                        organizationUrl.set("https://www.southwest.com/")
+                    }
+                    developer {
+                        name.set("Matthew Turnblom")
+                        email.set("uberawesomeemailaddressofdoom@gmail.com")
+                        organization.set("Xactware")
+                        organizationUrl.set("https://www.xactware.com/")
+                    }
+                    developer {
+                        name.set("Craig Tadlock")
+                        email.set("craig.tadlock@gototags.com")
+                        organization.set("GoToTags")
+                        organizationUrl.set("https://gototags.com/")
+                    }
+                }
+                scm {
+                    connection.set("scm:git:git@github.com:edvin/tornadofx2.git")
+                    developerConnection.set("scm:git:git@github.com:edvin/tornadofx2.git")
+                    url.set("git@github.com:edvin/tornadofx2.git")
+                }
+
+            }
+        }
+    }
+}
+
+//signing {
+//    sign(publishing.publications["tornadofx"])
+//}
