@@ -1,6 +1,8 @@
 import org.javamodularity.moduleplugin.extensions.TestModuleOptions
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
+/**
+ * Gradle version 6.6.1
+ */
 plugins {
     kotlin("jvm") version "1.3.61"
     `java-library`
@@ -22,11 +24,10 @@ val hamcrest_version: String by project
 val fontawesomefx_version: String by project
 
 group = "no.tornado"
-version = "2.0.1-SNAPSHOT"
+version = "2.0.0-SNAPSHOT"
 description = "JavaFX Framework for Kotlin"
 
 repositories {
-    mavenLocal()
     jcenter()
     mavenCentral()
     maven {
@@ -35,22 +36,26 @@ repositories {
 }
 
 dependencies {
-    api("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${kotlin_version}")
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlin_version}")
 
     api("org.glassfish:javax.json:${json_version}")
     api("org.apache.httpcomponents:httpclient:${httpclient_version}")
+    api("de.jensd:fontawesomefx-fontawesome:${fontawesomefx_version}")
     implementation("org.apache.felix:org.apache.felix.framework:${felix_framework_version}")
-    implementation("de.jensd:fontawesomefx-fontawesome:${fontawesomefx_version}")
 }
 
 javafx {
-    version = "11.0.2"
+    version = "15.0.1"
     modules = listOf("javafx.controls", "javafx.fxml", "javafx.swing", "javafx.web", "javafx.media")
 }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "11"
+}
+
+tasks.withType<JavaCompile> {
+    options.release.set(11)
 }
 
 tasks.jar {
