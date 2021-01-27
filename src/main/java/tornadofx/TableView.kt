@@ -40,6 +40,7 @@ open class SmartTableCell<S, T>(val scope: Scope = FX.defaultScope, val owningCo
     private val cellCache: TableColumnCellCache<T>? get() = owningColumn.properties["tornadofx.cellCache"] as TableColumnCellCache<T>?
     private var cellFragment: TableCellFragment<S, T>? = null
     private var fresh = true
+    private var freshStyleClass: Collection<String>? = null
 
     init {
         owningColumn.properties["tornadofx.cellFormatCapable"] = true
@@ -84,6 +85,7 @@ open class SmartTableCell<S, T>(val scope: Scope = FX.defaultScope, val owningCo
             if (fresh) {
                 val cellFragmentType = owningColumn.properties["tornadofx.cellFragment"] as KClass<TableCellFragment<S, T>>?
                 cellFragment = if (cellFragmentType != null) find(cellFragmentType, scope) else null
+                freshStyleClass = listOf(*styleClass.toTypedArray())
                 fresh = false
             }
             cellFragment?.apply {
@@ -103,8 +105,8 @@ open class SmartTableCell<S, T>(val scope: Scope = FX.defaultScope, val owningCo
         text = null
         graphic = null
         style = null
-        // Can't clear styleClass as this would mess with arrow icons for branches. We might improve this by keeping "cell", "indexed-cell" and "tree-cell" and remove the rest
-//        styleClass.clear()
+        //restore default style classes
+        freshStyleClass?.let { styleClass.retainAll(it) }
     }
 
     private fun clearCellFragment() {
