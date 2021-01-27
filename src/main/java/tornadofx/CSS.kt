@@ -1260,7 +1260,12 @@ fun loadFont(path: String, size: Number): Font? {
 fun <T : Styleable> T.hasClass(className: String) = styleClass.contains(className)
 fun <T : Styleable> T.hasPseudoClass(className: String) = pseudoClassStates.contains(PseudoClass.getPseudoClass(className))
 
-fun <T : Styleable> T.addClass(vararg className: String) = apply { styleClass.addAll(className) }
+fun <T : Styleable> T.addClass(vararg className: String) = apply {
+    className.forEach {
+        if (!hasClass(it)) {styleClass.add(it)}
+    }
+}
+
 fun Iterable<Styleable>.addClass(vararg cssClass: String) = forEach { node -> cssClass.forEach { node.addClass(it) } }
 
 fun <T : Styleable> T.addPseudoClass(className: String) = apply {
