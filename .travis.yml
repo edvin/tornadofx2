@@ -6,8 +6,11 @@ os: linux
 dist: focal
 jdk: openjdk11
 env:
-  - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
-#  - _JAVA_OPTIONS="-Dtestfx.robot=glass"
+  jobs:
+    # headed
+    - _JAVA_OPTIONS="-Dtestfx.robot=glass"
+    # headless using monocle
+    - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
 
 services:
   - xvfb
