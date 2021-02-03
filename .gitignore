@@ -19,5 +19,3 @@ bin/
 .gradle/
 # !gradle-wrapper.jar
 gradle/
-gradlew.*
-gradlew

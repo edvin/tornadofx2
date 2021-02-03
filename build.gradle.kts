@@ -100,6 +100,8 @@ dependencies {
     //Junit 4
     testCompileOnly("junit:junit:${junit4_version}")
     testRuntimeOnly("org.junit.vintage:junit-vintage-engine")
+    //headless
+    testRuntimeOnly("org.testfx:openjfx-monocle:jdk-11+26") // jdk-9+181 for Java 9, jdk-11+26 for Java 11
 }
 
 /**
