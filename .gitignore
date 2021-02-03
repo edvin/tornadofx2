@@ -17,5 +17,5 @@ bin/
 
 # gradle
 .gradle/
-# !gradle-wrapper.jar
-gradle/
+!gradle-wrapper.jar
+!gradle-wrapper.properties
