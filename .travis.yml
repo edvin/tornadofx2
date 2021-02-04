@@ -1,22 +1,36 @@
 language: java
-
-sudo: false   # Linux OS: run in container
+install: true
 
 os: linux
 dist: focal
 jdk: openjdk11
-env:
-  jobs:
-    # headed
-    - _JAVA_OPTIONS="-Dtestfx.robot=glass"
-    # headless using monocle
-    - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
 
 services:
   - xvfb
 
-script:
-  - ./gradlew check
+before_install:
+  - chmod +x gradlew
+
+stages:
+  - name: build
+  - name: snapshot
+    if: branch = master
+  - name: release
+    if: branch IN (master, release) AND tag =~ /^[Vv]{0,1}\d+\.\d+\.\d+.*/
+
+jobs:
+  include:
+    - stage: build
+      env:
+      # headed
+      - _JAVA_OPTIONS="-Dtestfx.robot=glass"
+      # headless using monocle
+      - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
+      script: ./gradlew build
+    - stage: snapshot
+      script: echo "snapshot build"
+    - stage: release
+      script: echo "release build"
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
