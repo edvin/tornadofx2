@@ -22,10 +22,10 @@ jobs:
   include:
     - stage: build
       env:
-      # headed
-      - _JAVA_OPTIONS="-Dtestfx.robot=glass"
-      # headless using monocle
-      - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
+        # headed
+        - _JAVA_OPTIONS="-Dtestfx.robot=glass"
+        # headless using monocle
+        - _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
       script: ./gradlew build
     - stage: snapshot
       script: echo "snapshot build"
