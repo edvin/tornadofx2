@@ -8,6 +8,7 @@ plugins {
     `java-library`
     id("org.openjfx.javafxplugin") version "0.0.9"
     `maven-publish`
+    id("org.jetbrains.dokka") version "1.4.20"
 //    signing
 }
 //see gradle.properties
