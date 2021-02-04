@@ -59,6 +59,8 @@ tasks.withType<JavaCompile> {
     options.release.set(11)
 }
 
+java.withSourcesJar()
+
 tasks.jar {
     manifest {
         attributes(
