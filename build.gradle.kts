@@ -9,7 +9,7 @@ plugins {
     id("org.openjfx.javafxplugin") version "0.0.9"
     `maven-publish`
     id("org.jetbrains.dokka") version "1.4.20"
-//    signing
+    signing
 }
 //see gradle.properties
 val tornado_version: String by project
@@ -128,6 +128,13 @@ publishing {
         create<MavenPublication>("tornadofx") {
             from(components["java"])
             pom {
+                licenses {
+                    license {
+                        name.set("The Apache Software License, Version 2.0")
+                        url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                        distribution.set("repo")
+                    }
+                }
                 developers {
                     developer {
                         name.set("Edvin Syse")
@@ -166,5 +173,8 @@ publishing {
 }
 
 //signing {
+//    val signingKey: String? by project
+//    val signingPassword: String? by project
+//    useInMemoryPgpKeys(signingKey, signingPassword)
 //    sign(publishing.publications["tornadofx"])
 //}
