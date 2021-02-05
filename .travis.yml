@@ -12,7 +12,7 @@ before_install:
   - chmod +x gradlew
 
 stages:
-  - name: build
+  - name: test
   - name: snapshot
     if: branch = master AND tag IS blank
   - name: release
@@ -20,12 +20,14 @@ stages:
 
 jobs:
   include:
-    - stage: build
+    - stage: test
+      name: "Headed Tests"
       env: _JAVA_OPTIONS="-Dtestfx.robot=glass"
-      script: ./gradlew build
+      script: ./gradlew check
     - # headless
+      name: "Headless Tests"
       env: _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
-      script: ./gradlew build
+      script: ./gradlew check
     - stage: snapshot
       script: echo "snapshot build"
     - stage: release
