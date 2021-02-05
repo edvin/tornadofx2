@@ -12,26 +12,24 @@ before_install:
   - chmod +x gradlew
 
 stages:
-  - build
-  - snapshot
+  - name: build
+  - name: snapshot
     if: branch = master AND tag IS blank
-  - release
+  - name: release
     if: branch IN (master, release) AND tag =~ /^[Vv]{0,1}\d+\.\d+\.\d+.*/
 
 jobs:
   include:
     - stage: build
-      name: "headed tests"
       env: _JAVA_OPTIONS="-Dtestfx.robot=glass"
-      script: ./gradlew check
-    - # headless using monocle
-      name: "headless tests"
+      script: ./gradlew build
+    - # headless
       env: _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
-      script: ./gradlew check
+      script: ./gradlew build
     - stage: snapshot
-      script: echo "deploy snapshot"
+      script: echo "snapshot build"
     - stage: release
-      script: echo "deploy release"
+      script: echo "release build"
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
