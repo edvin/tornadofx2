@@ -1,0 +1,46 @@
+language: java
+install: true
+
+os: linux
+dist: focal
+jdk: openjdk11
+
+services:
+  - xvfb
+
+before_install:
+  - chmod +x gradlew
+
+stages:
+  - name: test
+  - name: snapshot
+    if: branch = master AND tag IS blank
+  - name: release
+    if: branch IN (master, release) AND tag =~ /^[Vv]{0,1}\d+\.\d+\.\d+.*/
+
+jobs:
+  include:
+    - stage: test
+      name: "Headed Tests"
+      env: _JAVA_OPTIONS="-Dtestfx.robot=glass"
+      script: ./gradlew check
+    - # headless
+      name: "Headless Tests"
+      env: _JAVA_OPTIONS="-Djava.awt.headless=true -Dtestfx.robot=glass -Dtestfx.headless=true -Dglass.platform=Monocle -Dmonocle.platform=Headless -Dprism.order=sw"
+      script: ./gradlew check
+    - stage: snapshot
+      script: echo "snapshot build"
+    - stage: release
+      script: echo "release build"
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+  - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.bin
+  - rm -f  $HOME/.gradle/caches/*/fileHashes/fileHashes.lock
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.m2
