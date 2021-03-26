@@ -28,6 +28,8 @@ group = "no.tornado"
 version = "2.0.0-SNAPSHOT"
 description = "JavaFX Framework for Kotlin"
 
+extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")
+
 repositories {
     jcenter()
     mavenCentral()
@@ -172,9 +174,14 @@ publishing {
     }
 }
 
-//signing {
-//    val signingKey: String? by project
-//    val signingPassword: String? by project
-//    useInMemoryPgpKeys(signingKey, signingPassword)
-//    sign(publishing.publications["tornadofx"])
-//}
+signing {
+    setRequired({
+        (project.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("publish")
+    })
+    val signingKey: String? by project // ORG_GRADLE_PROJECT_signingKey
+    val signingPassword: String? by project // ORG_GRADLE_PROJECT_signingPassword
+    if (signingKey != null && signingPassword != null) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign(publishing.publications["tornadofx"])
+    }
+}
