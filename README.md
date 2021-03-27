@@ -3,7 +3,7 @@
 A JavaFX framework for Kotlin (Java 11+)
 
 This (experimental) branch is gradle based.
-Current state: [![Build Status](https://travis-ci.com/confinitum/tornadofx2.svg?branch=gradle_build)](https://travis-ci.com/confinitum/tornadofx2)
+Current state: TODO
 
 * Kotlin & Java target is Java 11.0.2
 * JavaFX version is 15.0.1
