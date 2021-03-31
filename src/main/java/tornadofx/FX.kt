@@ -519,9 +519,9 @@ fun EventTarget.addChildIfPossible(node: Node, index: Int? = null) {
     if (this is Node) {
         val target = builderTarget
         if (target != null) {
-            // Trick to get around the disallowed use of invoke on out projected types
-            @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-            target!!(this).value = node //got type mismatch
+            @Suppress("UNCHECKED_CAST")
+            target as (Any) -> ObjectProperty<Node>
+            target(this).value = node
             return
         }
     }
