@@ -4,15 +4,13 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.Node
 import javafx.scene.Parent
-import javafx.scene.canvas.Canvas
 import javafx.scene.effect.DropShadow
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.Region
-import javafx.scene.layout.StackPane
+import javafx.scene.layout.*
 import javafx.scene.paint.Color
 import javafx.scene.paint.Paint
+import javafx.scene.shape.Shape
 import tornadofx.InternalWindow.Styles.Companion.crossPath
 import java.awt.Toolkit
 import java.net.URL
@@ -23,7 +21,7 @@ class InternalWindow(icon: Node?, modal: Boolean, escapeClosesWindow: Boolean, c
     private lateinit var view: UIComponent
     private var titleProperty = SimpleStringProperty()
     private var ownerPlacementInBorderPane: BorderPaneContainer? = null
-    var overlay: Canvas? = null
+    var overlay: Shape? = null
     private var indexInCoverParent: Int? = null
     private var coverParent: Parent? = null
     private var offsetX = 0.0
@@ -40,16 +38,14 @@ class InternalWindow(icon: Node?, modal: Boolean, escapeClosesWindow: Boolean, c
         addClass(Styles.floatingWindowWrapper)
 
         if (modal) {
-            canvas {
+            rectangle {
                 overlay = this
-                graphicsContext2D.fill = overlayPaint
+                fill = overlayPaint
                 setOnMouseClicked {
                     Toolkit.getDefaultToolkit().beep()
                 }
                 widthProperty().bind(this@InternalWindow.widthProperty())
                 heightProperty().bind(this@InternalWindow.heightProperty())
-                widthProperty().onChange { fillOverlay() }
-                heightProperty().onChange { fillOverlay() }
             }
         }
 
@@ -135,14 +131,6 @@ class InternalWindow(icon: Node?, modal: Boolean, escapeClosesWindow: Boolean, c
 
     override fun getUserAgentStylesheet(): String = URL("css://${Styles::class.java.name}").toExternalForm()
 
-    fun fillOverlay() {
-        overlay?.graphicsContext2D.apply {
-            val lb = coverNode.layoutBounds
-            this?.clearRect(0.0, 0.0, lb.width, lb.height)
-            this?.fillRect(0.0, 0.0, lb.width, lb.height)
-        }
-    }
-
     fun open(view: UIComponent, owner: Node) {
         if (owner.parent is InternalWindow) return
         this.view = view
@@ -173,7 +161,6 @@ class InternalWindow(icon: Node?, modal: Boolean, escapeClosesWindow: Boolean, c
         (window.center as Parent) += view
 
         children.add(0, owner)
-        fillOverlay()
     }
 
     fun close() {
