@@ -521,7 +521,7 @@ fun EventTarget.addChildIfPossible(node: Node, index: Int? = null) {
         if (target != null) {
             // Trick to get around the disallowed use of invoke on out projected types
             @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-            target!!(this).value = node
+            target!!(this).value = node //got type mismatch
             return
         }
     }
