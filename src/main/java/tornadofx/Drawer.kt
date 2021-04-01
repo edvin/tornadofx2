@@ -288,8 +288,8 @@ class ExpandedDrawerContentArea : VBox() {
             while (change.next()) {
                 if (change.wasAdded()) {
                     change.addedSubList.asSequence()
-                            .filter { VBox.getVgrow(it) == null }
-                            .forEach { VBox.setVgrow(it, Priority.ALWAYS) }
+                            .filter { getVgrow(it) == null }
+                            .forEach { setVgrow(it, Priority.ALWAYS) }
                 }
             }
         }
@@ -321,8 +321,8 @@ class DrawerItem(val drawer: Drawer, title: ObservableValue<String?>? = null, ic
             while (change.next()) {
                 if (change.wasAdded()) {
                     change.addedSubList.asSequence()
-                            .filter { VBox.getVgrow(it) == null }
-                            .forEach { VBox.setVgrow(it, Priority.ALWAYS) }
+                            .filter { getVgrow(it) == null }
+                            .forEach { setVgrow(it, Priority.ALWAYS) }
                 }
             }
         }
