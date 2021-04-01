@@ -64,7 +64,7 @@ class InternalWindow(icon: Node?, modal: Boolean, escapeClosesWindow: Boolean, c
                     }
                     if (closeButton) {
                         button {
-                            addClass(Styles.closebutton)
+                            addClass(Styles.closeButton)
                             setOnMouseClicked {
                                 close()
                             }
@@ -90,7 +90,7 @@ class InternalWindow(icon: Node?, modal: Boolean, escapeClosesWindow: Boolean, c
             val floatingWindowContent by cssclass()
             val window by cssclass()
             val top by cssclass()
-            val closebutton by cssclass()
+            val closeButton by cssclass()
             val crossPath = "M7.48 8l3.75 3.75-1.48 1.48L6 9.48l-3.75 3.75-1.48-1.48L4.52 8 .77 4.25l1.48-1.48L6 6.52l3.75-3.75 1.48 1.48z"
         }
 
@@ -108,7 +108,7 @@ class InternalWindow(icon: Node?, modal: Boolean, escapeClosesWindow: Boolean, c
 
                     alignment = Pos.CENTER
 
-                    closebutton {
+                    closeButton {
                         padding = box(4.px, 12.px)
                         backgroundRadius += box(0.px)
                         backgroundColor += Color.WHITE
