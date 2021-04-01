@@ -197,10 +197,10 @@ class InternalWindow(icon: Node?, modal: Boolean, escapeClosesWindow: Boolean, c
 
             window.resizeRelocate(windowX, windowY, window.width, window.height)
         } else {
-            val windowWidth = Math.min(prefWidth, lb.width)
-            val windowHeight = Math.min(prefHeight, lb.height)
+            val windowWidth = prefWidth.coerceAtMost(lb.width)
+            val windowHeight = prefHeight.coerceAtMost(lb.height)
 
-            window.resizeRelocate(Math.max(0.0, x), Math.max(0.0, y), windowWidth, windowHeight)
+            window.resizeRelocate(0.0.coerceAtLeast(x), 0.0.coerceAtLeast(y), windowWidth, windowHeight)
 
         }
 
