@@ -274,6 +274,7 @@ class Drawer(side: Side, multiselect: Boolean, floatingContent: Boolean) : Borde
             val buttonBounds = buttonArea.layoutBounds
             when (dockingSide) {
                 Side.RIGHT -> contentArea.resizeRelocate(buttonBounds.minX - contentArea.prefWidth(-1.0), buttonBounds.minY, contentArea.prefWidth(-1.0), buttonBounds.height)
+                Side.BOTTOM -> contentArea.resizeRelocate(buttonBounds.minX, buttonBounds.minY - contentArea.prefHeight(-1.0), buttonBounds.width, contentArea.prefHeight(-1.0))
                 else -> contentArea.resizeRelocate(buttonBounds.maxX, buttonBounds.minY, contentArea.prefWidth(-1.0), buttonBounds.height)
             }
         }
