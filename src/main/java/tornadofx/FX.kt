@@ -544,6 +544,28 @@ fun EventTarget.addChildIfPossible(node: Node, index: Int? = null) {
                 header.items.add(targetIndex, node)
             }
         }
+        is Footer -> {
+            // Decide if the component should be tracked for removal on undock
+            (parent?.uiComponent<UIComponent>() as? Workspace)?.apply {
+                if (root.dynamicComponentMode) {
+                    root.dynamicComponents.add(node)
+                }
+            }
+
+            if (node is MenuBar) {
+                // MenuBar is added below the toolbar and is not considered dynamic
+                children.add(node)
+            } else {
+                if (node is ButtonBase) {
+                    // Add buttons after last button
+                    val targetIndex = container.children.indexOfLast { it is Button } + 1
+                    container.children.add(targetIndex, node)
+                } else {
+                    container.children.add(node)
+                }
+            }
+
+        }
         is Workspace -> {
             root.addChildIfPossible(node, index)
         }

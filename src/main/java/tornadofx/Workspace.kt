@@ -16,9 +16,7 @@ import javafx.scene.control.ToolBar
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
-import javafx.scene.layout.BorderPane
-import javafx.scene.layout.HBox
-import javafx.scene.layout.StackPane
+import javafx.scene.layout.*
 import tornadofx.Workspace.NavigationMode.Stack
 import tornadofx.Workspace.NavigationMode.Tabs
 import kotlin.reflect.KClass
@@ -27,6 +25,17 @@ import kotlin.reflect.full.isSubclassOf
 class HeadingContainer : HBox() {
     init {
         addClass("heading-container")
+    }
+}
+
+class Footer : VBox() {
+    internal var bottomDrawer: Drawer? = null
+    internal var container: HBox = HBox()
+
+    init {
+        addClass("footer")
+        container.addClass("footer-container")
+        children.add(container)
     }
 }
 
@@ -71,6 +80,9 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
     val dockedComponentProperty: ObjectProperty<UIComponent> = SimpleObjectProperty()
     val dockedComponent: UIComponent? get() = dockedComponentProperty.value
 
+    val showFooterProperty = SimpleBooleanProperty(false)
+    var showFooter by showFooterProperty
+
     private val viewPos = integerBinding(viewStack, dockedComponentProperty) { viewStack.indexOf(dockedComponent) }
 
     val leftDrawer: Drawer
@@ -86,9 +98,16 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
         }
 
     val bottomDrawer: Drawer
-        get() = (root.bottom as? Drawer) ?: Drawer(Side.BOTTOM, false, false).also {
+        get() = (root.bottom as? Footer)?.bottomDrawer ?: Drawer(Side.BOTTOM, false, false).also {
+            footer.bottomDrawer = it
+            footer.children.add(0, it)
+        }
+
+    val footer: Footer
+        get() = (root.bottom as? Footer) ?: Footer().also {
+            it.container.visibleWhen(showFooterProperty)
+            it.container.managedWhen(showFooterProperty)
             root.bottom = it
-            it.toFront()
         }
 
     companion object {
@@ -335,26 +354,26 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
 
     override fun onSave() {
         dockedComponentProperty.value
-                ?.takeIf { it.effectiveSavable.value }
-                ?.onSave()
+            ?.takeIf { it.effectiveSavable.value }
+            ?.onSave()
     }
 
     override fun onDelete() {
         dockedComponentProperty.value
-                ?.takeIf { it.effectiveDeletable.value }
-                ?.onDelete()
+            ?.takeIf { it.effectiveDeletable.value }
+            ?.onDelete()
     }
 
     override fun onCreate() {
         dockedComponentProperty.value
-                ?.takeIf { it.effectiveCreatable.value }
-                ?.onCreate()
+            ?.takeIf { it.effectiveCreatable.value }
+            ?.onCreate()
     }
 
     override fun onRefresh() {
         dockedComponentProperty.value
-                ?.takeIf { it.effectiveRefreshable.value }
-                ?.onRefresh()
+            ?.takeIf { it.effectiveRefreshable.value }
+            ?.onRefresh()
     }
 
     inline fun <reified T : UIComponent> dock(scope: Scope = this@Workspace.scope, params: Map<*, Any?>? = null) = dock(find<T>(scope, params))
@@ -364,7 +383,7 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
         if (child == dockedComponent) return
 
         // Remove everything after viewpos if moving forward
-        if (forward) while (viewPos.get() < viewStack.size -1) viewStack.removeAt(viewPos.get() + 1)
+        if (forward) while (viewPos.get() < viewStack.size - 1) viewStack.removeAt(viewPos.get() + 1)
 
         val addToStack = contentContainer == stackContainer && maxViewStackDepth > 0 && child !in viewStack
 
