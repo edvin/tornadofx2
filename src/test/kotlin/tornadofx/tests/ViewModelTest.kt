@@ -1,5 +1,6 @@
 package tornadofx.tests
 
+import javafx.beans.property.ObjectProperty
 import javafx.beans.property.Property
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
@@ -223,24 +224,24 @@ class PersonAutoModel(var person: Person? = null) : ViewModel() {
 
 // JavaFX Property
 open class PersonModel(person: Person? = null) : ItemViewModel<Person>(person) {
-    val name = bind { item?.nameProperty() }
-    val age = bind { item?.ageProperty() }
-    val phone = bind { item?.phoneProperty() }
-    val email = bind { item?.emailProperty() }
+    val name: Property<String> = bind { item?.nameProperty() }
+    val age: Property<Int> = bind { item?.ageProperty() }
+    val phone: Property<String> = bind { item?.phoneProperty() }
+    val email: Property<String> = bind { item?.emailProperty() }
 }
 
 // Java POJO getter/setter property
 class JavaPersonModel(person: JavaPerson) : ViewModel() {
-    val name = bind { person.observable(JavaPerson::getName, JavaPerson::setName) }
+    val name: Property<String> = bind { person.observable(JavaPerson::getName, JavaPerson::setName) }
 }
 
 // Kotlin var property
 class PersonVarModel(person: Person) : ViewModel() {
-    val name = bind { person.observable(Person::name) }
+    val name: Property<String> = bind { person.observable(Person::name) }
 }
 
 //Kotlin nullable and non-nullable property in ItemViewModel
 class PersonPokoModel(item : PersonPoko): ItemViewModel<PersonPoko>(item) {
-    val name = bind(PersonPoko::name)
-    val phone = bind(PersonPoko::phone)
+    val name: Property<String> = bind(PersonPoko::name)
+    val phone: Property<String> = bind(PersonPoko::phone)
 }

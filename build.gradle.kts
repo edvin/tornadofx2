@@ -4,7 +4,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
  * Gradle version 6.6.1
  */
 plugins {
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.4.32"
     `java-library`
     id("org.openjfx.javafxplugin") version "0.0.9"
     `maven-publish`
@@ -25,7 +25,7 @@ val hamcrest_version: String by project
 val fontawesomefx_version: String by project
 
 group = "no.tornado"
-version = "2.0.0-SNAPSHOT"
+version = tornado_version
 description = "JavaFX Framework for Kotlin"
 
 extra["isReleaseVersion"] = !version.toString().endsWith("SNAPSHOT")

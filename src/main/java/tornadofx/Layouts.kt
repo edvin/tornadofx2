@@ -165,8 +165,8 @@ fun EventTarget.tilepane(op: TilePane.() -> Unit = {}) = opcr(this, TilePane(), 
 fun EventTarget.borderpane(op: BorderPane.() -> Unit = {}) = opcr(this, BorderPane(), op)
 
 @Suppress("UNCHECKED_CAST")
-var Node.builderTarget: KFunction1<*, ObjectProperty<Node>>?
-    get() = properties["tornadofx.builderTarget"] as KFunction1<Any, ObjectProperty<Node>>?
+var Node.builderTarget: ((Any) -> ObjectProperty<Node>)?
+    get() = properties["tornadofx.builderTarget"] as ((Any) -> ObjectProperty<Node>)?
     set(value) {
         properties["tornadofx.builderTarget"] = value
     }
@@ -176,8 +176,10 @@ fun BorderPane.bottom(op: BorderPane.() -> Unit) = region(BorderPane::bottomProp
 fun BorderPane.left(op: BorderPane.() -> Unit) = region(BorderPane::leftProperty, op)
 fun BorderPane.right(op: BorderPane.() -> Unit) = region(BorderPane::rightProperty, op)
 fun BorderPane.center(op: BorderPane.() -> Unit) = region(BorderPane::centerProperty, op)
-internal fun BorderPane.region(region: KFunction1<BorderPane, ObjectProperty<Node>>?, op: BorderPane.() -> Unit) {
-    builderTarget = region
+
+internal fun BorderPane.region(region: ((BorderPane) -> ObjectProperty<Node>)?, op: BorderPane.() -> Unit) {
+    @Suppress("UNCHECKED_CAST")
+    builderTarget = region as ((Any) -> ObjectProperty<Node>)?
     op()
     builderTarget = null
 }
