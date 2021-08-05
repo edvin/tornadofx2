@@ -312,7 +312,7 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
             dockedComponent?.also {
                 dockedComponentProperty.value = null
                 if (oldMode == Stack && newMode == Tabs) {
-                    val listener = it.properties["tornadofx.rootParentChangeListener"] as ChangeListener<Parent>
+                    val listener = it.rootParentChangeListener
                     it.root.parentProperty().removeListener(listener)
                     it.callOnUndock()
                     dock(it, true)
