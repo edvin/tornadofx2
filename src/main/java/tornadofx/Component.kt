@@ -1068,6 +1068,9 @@ abstract class UIComponent(viewTitle: String? = "", icon: Node? = null) : Compon
                 setOnHidden {
                     modalStage = null
                     callOnUndock()
+                    /* reset scene so that next time time openModal is called the owner parameter
+                    does not return this modal stage */
+                    scene.root = Pane()
                 }
 
                 if (block) showAndWait() else show()
