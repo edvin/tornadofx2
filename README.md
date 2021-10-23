@@ -29,6 +29,21 @@ Current state: TODO
 * [Kotlin 1.3+](https://kotlinlang.org/)
 * [JavaFX 13+](https://openjfx.io/)
 
+## Installation
+
+In repositories block add
+
+```
+maven {
+    url = uri("https://oss.sonatype.org/content/repositories/snapshots")
+}
+```
+
+In dependencies block add
+```
+implementation("no.tornado:tornadofx:2.0.0-SNAPSHOT")
+```
+
 ## Feature Requests and Bugs
 
 Please use the GitHub [issues](https://github.com/edvin/tornadofx2/issues) for all feature requests and bugs.
