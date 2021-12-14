@@ -463,10 +463,10 @@ abstract class UIComponent(viewTitle: String? = "", icon: Node? = null) : Compon
 
     // If the UIComponent property is set, prefer this to the property. This makes it possible to do subdelegation
     // using forwardWorkspaceActions inside other components like TabPane(https://github.com/edvin/tornadofx/issues/894)
-    internal val effectiveSavable: BooleanExpression get() = booleanBinding(savable, properties) { (properties["tornadofx.savable"] as? BooleanExpression)?.value ?: this.value }
-    internal val effectiveRefreshable: BooleanExpression get() = booleanBinding(refreshable, properties) { (properties["tornadofx.refreshable"] as? BooleanExpression)?.value ?: this.value }
-    internal val effectiveCreatable: BooleanExpression get() = booleanBinding(creatable, properties) { (properties["tornadofx.creatable"] as? BooleanExpression)?.value ?: this.value }
-    internal val effectiveDeletable: BooleanExpression get() = booleanBinding(deletable, properties) { (properties["tornadofx.deletable"] as? BooleanExpression)?.value ?: this.value }
+    internal val effectiveSavable: BooleanExpression get() = booleanBinding(savable, properties) { (properties["tornadofx.savable"] as? BooleanExpression)?.value ?: savable.value }
+    internal val effectiveRefreshable: BooleanExpression get() = booleanBinding(refreshable, properties) { (properties["tornadofx.refreshable"] as? BooleanExpression)?.value ?: refreshable.value }
+    internal val effectiveCreatable: BooleanExpression get() = booleanBinding(creatable, properties) { (properties["tornadofx.creatable"] as? BooleanExpression)?.value ?: creatable.value }
+    internal val effectiveDeletable: BooleanExpression get() = booleanBinding(deletable, properties) { (properties["tornadofx.deletable"] as? BooleanExpression)?.value ?: deletable.value }
 
     /**
      * Forward the Workspace button states and actions to the TabPane, which

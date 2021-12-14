@@ -324,7 +324,7 @@ fun <S, T> TableColumn<S, T>.enableTextWrap() = apply {
             graphic = text
             prefHeight = Control.USE_COMPUTED_SIZE
             text.wrappingWidthProperty().bind(this@enableTextWrap.widthProperty().subtract(Bindings.multiply(2.0, graphicTextGapProperty())))
-            text.textProperty().bind(stringBinding(itemProperty()) { get()?.toString() ?: "" })
+            text.textProperty().bind(itemProperty().stringBinding { item -> item?.toString() ?: "" })
         }
     }
 }
@@ -899,11 +899,11 @@ class TableViewEditModel<S>(val tableView: TableView<S>) {
     val items = FXCollections.observableHashMap<S, TableColumnDirtyState<S>>()
 
     val selectedItemDirtyState: ObjectBinding<TableColumnDirtyState<S>?> by lazy {
-        objectBinding(tableView.selectionModel.selectedItemProperty()) { getDirtyState(value) }
+        tableView.selectionModel.selectedItemProperty().objectBinding { if (it != null) getDirtyState(it) else null }
     }
 
     val selectedItemDirty: BooleanBinding by lazy {
-        booleanBinding(selectedItemDirtyState) { value?.dirty?.value ?: false }
+        selectedItemDirtyState.booleanBinding { it?.dirty?.value ?: false }
     }
 
     fun getDirtyState(item: S): TableColumnDirtyState<S> = items.getOrPut(item) { TableColumnDirtyState(this, item) }
@@ -1014,10 +1014,10 @@ class TableColumnDirtyState<S>(val editModel: TableViewEditModel<S>, val item: S
             return _dirtyColumns!!
         }
 
-    val dirty: BooleanBinding by lazy { booleanBinding(dirtyColumns) { isNotEmpty() } }
+    val dirty: BooleanBinding by lazy { booleanBinding(dirtyColumns) { dirtyColumns.isNotEmpty() } }
     val isDirty: Boolean get() = dirty.value
 
-    fun getDirtyColumnProperty(column: TableColumn<*, *>) = booleanBinding(dirtyColumns) { containsKey(column as TableColumn<S, Any?>) }
+    fun getDirtyColumnProperty(column: TableColumn<*, *>) = booleanBinding(dirtyColumns) { dirtyColumns.containsKey(column as TableColumn<S, Any?>) }
 
     fun isDirtyColumn(column: TableColumn<*, *>) = dirtyColumns.containsKey(column as TableColumn<S, Any?>)
 

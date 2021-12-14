@@ -188,11 +188,7 @@ fun <T> Property<T>.cleanBind(observable: ObservableValue<T>) {
 operator fun <T> ObservableValue<T>.getValue(thisRef: Any, property: KProperty<*>) = value
 operator fun <T> Property<T>.setValue(thisRef: Any, property: KProperty<*>, value: T?) = setValue(value)
 
-fun ObservableValue<String>.matches(pattern: Regex): BooleanBinding {
-    return booleanBinding {
-        it?.matches(pattern) ?: false
-    }
-}
+fun ObservableValue<String>.matches(pattern: Regex): BooleanBinding = booleanBinding { it?.matches(pattern) ?: false }
 
 operator fun ObservableDoubleValue.getValue(thisRef: Any, property: KProperty<*>) = get()
 operator fun DoubleProperty.setValue(thisRef: Any, property: KProperty<*>, value: Double) = set(value)
@@ -426,14 +422,14 @@ operator fun IntegerProperty.divAssign(other: ObservableNumberValue) {
     value /= other.intValue()
 }
 
-operator fun IntegerExpression.rem(other: Int): IntegerBinding = integerBinding(this) { get() % other }
-operator fun IntegerExpression.rem(other: Long): LongBinding = longBinding(this) { get() % other }
-operator fun IntegerExpression.rem(other: Float): FloatBinding = floatBinding(this) { get() % other }
-operator fun IntegerExpression.rem(other: Double): DoubleBinding = doubleBinding(this) { get() % other }
-operator fun IntegerExpression.rem(other: ObservableIntegerValue): IntegerBinding = integerBinding(this, other) { get() % other.get() }
-operator fun IntegerExpression.rem(other: ObservableLongValue): LongBinding = longBinding(this, other) { get() % other.get() }
-operator fun IntegerExpression.rem(other: ObservableFloatValue): FloatBinding = floatBinding(this, other) { get() % other.get() }
-operator fun IntegerExpression.rem(other: ObservableDoubleValue): DoubleBinding = doubleBinding(this, other) { get() % other.get() }
+operator fun IntegerExpression.rem(other: Int): IntegerBinding = this.integerBinding { get() % other }
+operator fun IntegerExpression.rem(other: Long): LongBinding = this.longBinding { get() % other }
+operator fun IntegerExpression.rem(other: Float): FloatBinding = this.floatBinding { get() % other }
+operator fun IntegerExpression.rem(other: Double): DoubleBinding = this.doubleBinding { get() % other }
+operator fun IntegerExpression.rem(other: ObservableIntegerValue): IntegerBinding = integerBinding(this, other) { this.get() % other.get() }
+operator fun IntegerExpression.rem(other: ObservableLongValue): LongBinding = longBinding(this, other) { this.get() % other.get() }
+operator fun IntegerExpression.rem(other: ObservableFloatValue): FloatBinding = floatBinding(this, other) { this.get() % other.get() }
+operator fun IntegerExpression.rem(other: ObservableDoubleValue): DoubleBinding = doubleBinding(this, other) { this.get() % other.get() }
 
 operator fun IntegerProperty.remAssign(other: Number) {
     value %= other.toInt()
@@ -522,9 +518,9 @@ operator fun LongProperty.divAssign(other: ObservableNumberValue) {
     value /= other.longValue()
 }
 
-operator fun LongExpression.rem(other: Number): LongBinding = longBinding(this) { get() % other.toLong() }
-operator fun LongExpression.rem(other: Float): FloatBinding = floatBinding(this) { get() % other }
-operator fun LongExpression.rem(other: Double): DoubleBinding = doubleBinding(this) { get() % other }
+operator fun LongExpression.rem(other: Number): LongBinding = this.longBinding { get() % other.toLong() }
+operator fun LongExpression.rem(other: Float): FloatBinding = this.floatBinding { get() % other }
+operator fun LongExpression.rem(other: Double): DoubleBinding = this.doubleBinding { get() % other }
 
 operator fun LongExpression.rem(other: ObservableNumberValue): LongBinding = longBinding(this, other) { this.get() % other.longValue() }
 operator fun LongExpression.rem(other: ObservableFloatValue): FloatBinding = floatBinding(this, other) { this.get() % other.get() }
@@ -649,40 +645,65 @@ infix fun StringExpression.eqIgnoreCase(other: String): BooleanBinding = isEqual
 infix fun StringExpression.eqIgnoreCase(other: ObservableStringValue): BooleanBinding = isEqualToIgnoreCase(other)
 
 
-fun <T> ObservableValue<T>.integerBinding(vararg dependencies: Observable, op: (T?) -> Int): IntegerBinding
-        = Bindings.createIntegerBinding(Callable { op(value) }, this, *dependencies)
+fun <T> ObservableValue<T>.integerBinding(op: (T?) -> Int): IntegerBinding
+        = Bindings.createIntegerBinding(Callable { op(value) }, this)
 
-fun <T : Any> integerBinding(receiver: T, vararg dependencies: Observable, op: T.() -> Int): IntegerBinding
-        = Bindings.createIntegerBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
+fun integerBinding(vararg dependencies: Observable, op: () -> Int): IntegerBinding
+        = Bindings.createIntegerBinding(Callable { op() }, *dependencies)
 
-fun <T> ObservableValue<T>.longBinding(vararg dependencies: Observable, op: (T?) -> Long): LongBinding
-        = Bindings.createLongBinding(Callable { op(value) }, this, *dependencies)
+fun <T> ObservableValue<T>.longBinding(op: (T?) -> Long): LongBinding
+        = Bindings.createLongBinding(Callable { op(value) }, this)
 
-fun <T : Any> longBinding(receiver: T, vararg dependencies: Observable, op: T.() -> Long): LongBinding
-        = Bindings.createLongBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
+fun longBinding(vararg dependencies: Observable, op: () -> Long): LongBinding
+        = Bindings.createLongBinding(Callable { op() }, *dependencies)
 
-fun <T> ObservableValue<T>.doubleBinding(vararg dependencies: Observable, op: (T?) -> Double): DoubleBinding
-        = Bindings.createDoubleBinding(Callable { op(value) }, this, *dependencies)
+fun <T> ObservableValue<T>.doubleBinding(op: (T?) -> Double): DoubleBinding
+        = Bindings.createDoubleBinding(Callable { op(value) }, this)
 
-fun <T : Any> doubleBinding(receiver: T, vararg dependencies: Observable, op: T.() -> Double): DoubleBinding
-        = Bindings.createDoubleBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
+fun doubleBinding(vararg dependencies: Observable, op: () -> Double): DoubleBinding
+        = Bindings.createDoubleBinding(Callable { op() }, *dependencies)
 
-fun <T> ObservableValue<T>.floatBinding(vararg dependencies: Observable, op: (T?) -> Float): FloatBinding
-        = Bindings.createFloatBinding(Callable { op(value) }, this, *dependencies)
+fun <T> ObservableValue<T>.floatBinding(op: (T?) -> Float): FloatBinding
+        = Bindings.createFloatBinding(Callable { op(value) }, this)
 
-fun <T : Any> floatBinding(receiver: T, vararg dependencies: Observable, op: T.() -> Float): FloatBinding
-        = Bindings.createFloatBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
+fun floatBinding(vararg dependencies: Observable, op: () -> Float): FloatBinding
+        = Bindings.createFloatBinding(Callable { op() }, *dependencies)
 
-fun <T> ObservableValue<T>.booleanBinding(vararg dependencies: Observable, op: (T?) -> Boolean): BooleanBinding =
-        Bindings.createBooleanBinding(Callable { op(value) }, this, *dependencies)
+fun <T> ObservableValue<T>.booleanBinding(op: (T?) -> Boolean): BooleanBinding =
+        Bindings.createBooleanBinding(Callable { op(value) }, this)
 
-fun <T : Any> booleanBinding(receiver: T, vararg dependencies: Observable, op: T.() -> Boolean): BooleanBinding
-        = Bindings.createBooleanBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
+fun booleanBinding(vararg dependencies: Observable, op: () -> Boolean): BooleanBinding
+        = Bindings.createBooleanBinding(Callable { op() }, *dependencies)
+
+fun <T> ObservableValue<T>.stringBinding(op: (T?) -> String?): StringBinding
+        = Bindings.createStringBinding(Callable { op(value) }, this)
+
+fun <T : Any> stringBinding(receiver: T, vararg dependencies: Observable, op: T.() -> String?): StringBinding =
+        Bindings.createStringBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
+
+fun stringBinding(vararg dependencies: Observable, op: () -> String?): StringBinding =
+        Bindings.createStringBinding(Callable { op() }, *dependencies)
+
+
+fun <T, R> ObservableValue<T>.objectBinding(op: (T?) -> R?): ObjectBinding<R?>
+        = Bindings.createObjectBinding(Callable { op(value) }, this)
+
+fun <R> objectBinding(vararg dependencies: Observable, op: () -> R?): ObjectBinding<R?>
+        = Bindings.createObjectBinding(Callable { op() }, *dependencies)
+
+fun <T, R> ObservableValue<T>.nonNullObjectBinding(op: (T?) -> R): ObjectBinding<R>
+        = Bindings.createObjectBinding(Callable { op(value) }, this)
+
+fun <R> nonNullObjectBinding(vararg dependencies: Observable, op: () -> R): ObjectBinding<R>
+        = Bindings.createObjectBinding(Callable { op() }, *dependencies)
+
+/* Generate a calculated IntegerProperty that keeps track of the number of items in this ObservableList */
+val ObservableList<*>.sizeProperty: IntegerBinding get() = integerBinding(this) { size }
 
 /**
- * A Boolean binding that tracks all items in an observable list and create an observable boolean
+ * A Boolean binding that tracks all items in an observable list and creates an observable boolean
  * value by anding together an observable boolean representing each element in the observable list.
- * Whenever the list changes, the binding is updated as well
+ * Whenever the list changes, the binding is updated as well.
  */
 fun <T : Any> booleanListBinding(list: ObservableList<T>, defaultValue: Boolean = false, itemToBooleanExpr: T.() -> BooleanExpression): BooleanExpression {
     val facade = SimpleBooleanProperty()
@@ -698,28 +719,6 @@ fun <T : Any> booleanListBinding(list: ObservableList<T>, defaultValue: Boolean 
     rebind()
     return facade
 }
-
-fun <T> ObservableValue<T>.stringBinding(vararg dependencies: Observable, op: (T?) -> String?): StringBinding
-        = Bindings.createStringBinding(Callable { op(value) }, this, *dependencies)
-
-fun <T : Any> stringBinding(receiver: T, vararg dependencies: Observable, op: T.() -> String?): StringBinding =
-        Bindings.createStringBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
-
-fun <T, R> ObservableValue<T>.objectBinding(vararg dependencies: Observable, op: (T?) -> R?): Binding<R?>
-        = Bindings.createObjectBinding(Callable { op(value) }, this, *dependencies)
-
-fun <T : Any, R> objectBinding(receiver: T, vararg dependencies: Observable, op: T.() -> R?): ObjectBinding<R?>
-        = Bindings.createObjectBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
-
-fun <T : Any, R> nonNullObjectBinding(receiver: T, vararg dependencies: Observable, op: T.() -> R): ObjectBinding<R>
-        = Bindings.createObjectBinding(Callable { receiver.op() }, *createObservableArray(receiver, *dependencies))
-
-private fun <T> createObservableArray(receiver: T, vararg dependencies: Observable): Array<out Observable> =
-        if (receiver is Observable) arrayOf(receiver, *dependencies) else dependencies
-
-
-/* Generate a calculated IntegerProperty that keeps track of the number of items in this ObservableList */
-val ObservableList<*>.sizeProperty: IntegerBinding get() = integerBinding(this) { size }
 
 /**
  * Assign the value from the creator to this WritableValue if and only if it is currently null

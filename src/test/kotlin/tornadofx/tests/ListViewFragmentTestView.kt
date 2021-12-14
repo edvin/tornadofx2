@@ -26,7 +26,7 @@ class PersonListFragment : ListCellFragment<Person>() {
             field("Age") {
                 label(person.age)
             }
-            label(stringBinding(person.age) { "$value years old" }) {
+            label(person.age.stringBinding { "$it years old" }) {
                 alignment = Pos.CENTER_RIGHT
                 style {
                     fontSize = 22.px

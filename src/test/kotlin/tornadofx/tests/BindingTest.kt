@@ -30,7 +30,7 @@ class BindingTest {
     @Test
     fun observableListBinding() {
         val elements = FXCollections.observableArrayList("Hello", "World")
-        val binding = stringBinding(elements, elements) { this.joinToString(" ")}
+        val binding = stringBinding(elements) { elements.joinToString(" ")}
         val uielement = Label().apply { bind(binding) }
         Assert.assertEquals("Hello World", uielement.text)
         elements.setAll("Hello", "Changed")
@@ -70,10 +70,10 @@ class BindingTest {
 
     @Test
     fun booleanBinding() {
-        val mylist = FXCollections.observableArrayList<String>()
-        val complete = booleanBinding(mylist) { isNotEmpty() }
+        val myList = FXCollections.observableArrayList<String>()
+        val complete = booleanBinding(myList) { myList.isNotEmpty() }
         Assert.assertFalse(complete.value)
-        mylist.add("One")
+        myList.add("One")
         Assert.assertTrue(complete.value)
     }
 

@@ -390,10 +390,10 @@ fun EventTarget.imageview(url: String? = null, lazyload: Boolean = true, op: Ima
 
 fun EventTarget.imageview(
         url: ObservableValue<String>,
-        lazyload: Boolean = true,
+        lazyLoad: Boolean = true,
         op: ImageView.() -> Unit = {}
 ) = ImageView().attachTo(this, op) { imageView ->
-    imageView.imageProperty().bind(objectBinding(url) { value?.let { Image(it, lazyload) } })
+    imageView.imageProperty().bind(url.objectBinding { it?.let { Image(it, lazyLoad) } })
 }
 
 fun EventTarget.imageview(image: ObservableValue<Image?>, op: ImageView.() -> Unit = {}) = ImageView().attachTo(this, op) {

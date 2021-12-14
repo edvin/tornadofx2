@@ -31,8 +31,8 @@ abstract class Wizard @JvmOverloads constructor(title: String? = null, heading: 
     val enterProgressesProperty: BooleanProperty = SimpleBooleanProperty(false)
     var enterProgresses by enterProgressesProperty
 
-    val hasNext = booleanBinding(currentPageProperty, pages) { value != null && pages.indexOf(value) < pages.size - 1 }
-    val hasPrevious = booleanBinding(currentPageProperty, pages) { value != null && pages.indexOf(value) > 0 }
+    val hasNext = booleanBinding(currentPageProperty, pages) { currentPageProperty.value != null && pages.indexOf(currentPageProperty.value) < pages.size - 1 }
+    val hasPrevious = booleanBinding(currentPageProperty, pages) { currentPageProperty.value != null && pages.indexOf(currentPageProperty.value) > 0 }
     val allPagesComplete: BooleanExpression get() = booleanListBinding(pages) { complete }
 
     val currentPageComplete: BooleanExpression = SimpleBooleanProperty(false)
@@ -136,7 +136,7 @@ abstract class Wizard @JvmOverloads constructor(title: String? = null, heading: 
                         val isPageActive = currentPageProperty.isEqualTo(page)
 
                         hyperlink("") {
-                            textProperty().bind(stringBinding(numberedStepsProperty) { "${if (numberedSteps) (pages.indexOf(page) + 1).toString() + ". " else ""}${page.title}" })
+                            textProperty().bind(numberedStepsProperty.stringBinding { "${if (numberedSteps) (pages.indexOf(page) + 1).toString() + ". " else ""}${page.title}" })
                             toggleClass(WizardStyles.bold, isPageActive)
                             action {
                                 if (stepLinksCommits && pages.indexOf(page) > pages.indexOf(currentPage)) {
