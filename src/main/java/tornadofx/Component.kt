@@ -376,7 +376,7 @@ abstract class UIComponent(viewTitle: String? = "", icon: Node? = null) : Compon
 
     lateinit var fxmlLoader: FXMLLoader
     var modalStage: Stage? = null
-    var muteDocking = false
+    internal var muteDocking = false
     abstract val root: Parent
     internal val wrapperProperty = SimpleObjectProperty<Parent>()
     internal fun getRootWrapper(): Parent = wrapperProperty.value ?: root
@@ -722,7 +722,7 @@ abstract class UIComponent(viewTitle: String? = "", icon: Node? = null) : Compon
         goto<T>(params.toMap())
     }
 
-    fun callOnDock() {
+    internal fun callOnDock() {
         if (!isInitialized) init()
         if (!isDocked) {
             attachLocalEventBusListeners()
