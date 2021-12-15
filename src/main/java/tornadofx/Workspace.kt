@@ -1,24 +1,29 @@
 package tornadofx
 
+import dock.DetachableTab
+import dock.DetachableTabPane
+import dock.TabSplitPane
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.value.ChangeListener
+import javafx.beans.value.ObservableValue
 import javafx.collections.FXCollections
+import javafx.collections.ListChangeListener
+import javafx.collections.ObservableSet
 import javafx.geometry.Pos
 import javafx.geometry.Side
 import javafx.scene.Node
 import javafx.scene.Parent
-import javafx.scene.control.Button
-import javafx.scene.control.TabPane
-import javafx.scene.control.ToolBar
+import javafx.scene.control.*
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyCodeCombination
 import javafx.scene.input.KeyCombination
 import javafx.scene.layout.BorderPane
 import javafx.scene.layout.HBox
 import javafx.scene.layout.StackPane
+import javafx.util.Duration
 import tornadofx.Workspace.NavigationMode.Stack
 import tornadofx.Workspace.NavigationMode.Tabs
 import kotlin.reflect.KClass
@@ -59,7 +64,12 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
     var maxViewStackDepth by maxViewStackDepthProperty
 
     val headingContainer = HeadingContainer()
-    val tabContainer = TabPane().addClass("editor-container")
+    val tabPanes = FXCollections.observableArrayList<DetachableTabPane>()
+    val detachableTabPane = DetachableTabPane(tabPanes).addClass("editor-container")
+    val tabContainer = TabSplitPane().apply {
+        items.add(detachableTabPane)
+    }
+
     val stackContainer = StackPane().addClass("editor-container")
 
     val contentContainerProperty = SimpleObjectProperty<Parent>(stackContainer)
@@ -70,6 +80,9 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
 
     val dockedComponentProperty: ObjectProperty<UIComponent> = SimpleObjectProperty()
     val dockedComponent: UIComponent? get() = dockedComponentProperty.value
+
+    val placementPositionProperty: ObjectProperty<Pos> = SimpleObjectProperty(Pos.CENTER)
+    var placementPos by placementPositionProperty
 
     private val viewPos = integerBinding(viewStack, dockedComponentProperty) { viewStack.indexOf(dockedComponent) }
 
@@ -239,75 +252,184 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
         return false
     }
 
+    val focusedTabPane = SimpleObjectProperty(detachableTabPane)
+
+
+
+    val tabsListener: ListChangeListener<Tab> = ListChangeListener { change ->
+        while (change.next()) {
+            if (change.wasRemoved()) {
+                change.removed.forEach {
+                    if (it == dockedComponent) {
+                        titleProperty.unbind()
+                        refreshButton.disableProperty().unbind()
+                        saveButton.disableProperty().unbind()
+                        createButton.disableProperty().unbind()
+                        deleteButton.disableProperty().unbind()
+                    }
+                }
+            }
+            if (change.wasAdded()) {
+                change.addedSubList.forEach {
+                    it.content.properties["tornadofx.tab"] = it
+                }
+            }
+        }
+    }
+
+    val selectedTabListener: ChangeListener<Tab> = ChangeListener { observableValue, ov, nv ->
+        val newCmp = nv?.content?.uiComponent<UIComponent>()
+        val oldCmp = ov?.content?.uiComponent<UIComponent>()
+        if (newCmp != null && newCmp != dockedComponent) {
+            setAsCurrentlyDocked(newCmp)
+        }
+        if (oldCmp != newCmp) {
+            if (oldCmp != null) {
+                oldCmp.callOnUndock()
+                //println("Calling undock of ${oldCmp.title} from selectedTabListener")
+            }
+        }
+        if (newCmp == null) {
+            headingContainer.children.clear()
+            clearDynamicComponents()
+            dockedComponentProperty.value = null
+        }
+    }
+
+
     init {
 //        @Suppress("LeakingThis")
 //        if (!scope.hasActiveWorkspace) scope.workspaceInstance = this
         navigationModeProperty.addListener { _, ov, nv -> navigationModeChanged(ov, nv) }
-        tabContainer.tabs.onChange { change ->
+
+        tabPanes.onChange { change ->
             while (change.next()) {
+                if (change.wasAdded()) {
+                    change.addedSubList.forEach { tabPane ->
+                        tabPane.properties["tabsListener"] = tabsListener
+                        tabPane.tabs.addListener(tabsListener)
+                        tabPane.properties["selectedTabListener"] = selectedTabListener
+                        tabPane.selectionModel.selectedItemProperty().addListener(selectedTabListener)
+                        tabPane.focusedProperty().onChange { focused ->
+                            if (focused) {
+                                focusedTabPane.value = tabPane
+                                val cmp = tabPane.selectionModel.selectedItem?.content?.uiComponent<UIComponent>()
+                                if (cmp != null && dockedComponent != cmp) {
+                                    dockedComponent?.callOnUndock()
+                                    //println("Calling unDock of ${dockedComponent?.title} from focusChange")
+                                    setAsCurrentlyDocked(cmp)
+                                }
+                            }
+                        }
+                        tabPane.tabs.addListener(ListChangeListener {
+                            tabPane.applyCss()
+                            tabPane.layout()
+                        })
+                    }
+                }
                 if (change.wasRemoved()) {
                     change.removed.forEach {
-                        if (it == dockedComponent) {
-                            titleProperty.unbind()
-                            refreshButton.disableProperty().unbind()
-                            saveButton.disableProperty().unbind()
-                            createButton.disableProperty().unbind()
-                            deleteButton.disableProperty().unbind()
+                        it.properties.remove("tabsListener")
+                        it.tabs.removeListener(tabsListener)
+                        it.properties.remove("selectedTabListener")
+                        it.selectionModel.selectedItemProperty().removeListener(selectedTabListener)
+                        val first = tabPanes.firstOrNull()
+                        first?.let { tb ->
+                            focusedTabPane.value = tb
+                            focusedTabPane.value.requestFocus()
+                            val cmp = tb.selectionModel.selectedItem?.content?.uiComponent<UIComponent>()
+                            if (cmp != null && dockedComponent != cmp) {
+                                dockedComponent?.callOnUndock()
+                                //println("Calling unDock of ${dockedComponent?.title} from focusChange")
+                                setAsCurrentlyDocked(cmp)
+                            }
                         }
-                    }
-                }
-                if (change.wasAdded()) {
-                    change.addedSubList.forEach {
-                        it.content.properties["tornadofx.tab"] = it
+
                     }
                 }
             }
         }
-        tabContainer.selectionModel.selectedItemProperty().addListener { observableValue, ov, nv ->
-            val newCmp = nv?.content?.uiComponent<UIComponent>()
-            val oldCmp = ov?.content?.uiComponent<UIComponent>()
-            if (newCmp != null && newCmp != dockedComponent) {
-                setAsCurrentlyDocked(newCmp)
-            }
-            if (oldCmp != newCmp) oldCmp?.callOnUndock()
-            if (newCmp == null) {
-                headingContainer.children.clear()
-                clearDynamicComponents()
-                dockedComponentProperty.value = null
-            }
-        }
+
         dockedComponentProperty.onChange { child ->
             if (child != null) {
                 inDynamicComponentMode {
                     if (contentContainer == stackContainer) {
-                        tabContainer.tabs.clear()
+                        detachableTabPane.tabs.clear()
                         stackContainer.clear()
                         stackContainer += child
                     } else {
                         stackContainer.clear()
-                        var tab = tabContainer.tabs.find { it.content == child.root }
+                        var tab = findTabFromUIComponent(child)
                         if (tab == null) {
-                            tabContainer += child
-                            tab = tabContainer.tabs.last()
+                            if (placementPos != Pos.CENTER) {
+                                tab = DetachableTab().apply {
+                                    child.properties["tornadofx.tab"] = this
+                                    content = child.root
+                                    textProperty().bind(child.titleProperty)
+                                    closableProperty().bind(child.closeable)
+                                }
+                                focusedTabPane.value.placeTab(tab, placementPos)
+                            } else {
+                                focusedTabPane.value += child
+                                tab = focusedTabPane.value.tabs.last()
+                            }
                         } else {
                             child.callOnDock()
+                            //println("Calling dock of ${child.title} from dockedComponentChange")
                         }
-                        tabContainer.selectionModel.select(tab)
-                        if (!child.isDocked) child.callOnDock()
+                        if (tab != null) {
+                            val tabPane = findTabPaneContainingTab(tab)
+                            tabPane?.let {
+                                tabPane.selectionModel.select(tab)
+                                tabPane.requestFocus()
+                                focusedTabPane.value = it
+                            }
+                        }
+                        if (!child.isDocked) {
+                            child.callOnDock()
+                            //println("Calling dock of ${child.title} from dockedComponentChange2")
+                        }
                     }
                 }
             }
         }
+
         navigationModeChanged(null, navigationMode)
+
+        detachableTabPane.properties["tabsListener"] = tabsListener
+        detachableTabPane.tabs.addListener(tabsListener)
+        detachableTabPane.properties["selectedTabListener"] = selectedTabListener
+        detachableTabPane.selectionModel.selectedItemProperty().addListener(selectedTabListener)
+        detachableTabPane.focusedProperty().onChange { focused ->
+            if (focused) {
+                println("hello")
+                focusedTabPane.value = detachableTabPane
+                val cmp = detachableTabPane.selectionModel.selectedItem?.content?.uiComponent<UIComponent>()
+                if (cmp != null && dockedComponent != cmp) {
+                    dockedComponent?.callOnUndock()
+                    //println("Calling unDock of ${dockedComponent?.title} from focusChange")
+                    setAsCurrentlyDocked(cmp)
+                }
+            }
+        }
+
         registerWorkspaceAccelerators()
+    }
+
+    fun findTabFromUIComponent(cmp: UIComponent) : Tab? {
+        return tabPanes.flatMap { it.tabs }.find { it.content == cmp.root }
+    }
+
+    fun findTabPaneContainingTab(tab: Tab) : DetachableTabPane? {
+        return tabPanes.find { it.tabs.contains(tab) }
     }
 
     private fun navigationModeChanged(oldMode: NavigationMode?, newMode: NavigationMode?) {
         if (oldMode == null || oldMode != newMode) {
             contentContainer = if (navigationMode == Stack) stackContainer else tabContainer
             root.center = contentContainer
-            if (contentContainer == stackContainer && tabContainer.tabs.isNotEmpty()) {
-                tabContainer.tabs.clear()
+            if (contentContainer == stackContainer && detachableTabPane.tabs.isNotEmpty()) {
+                detachableTabPane.tabs.clear()
             }
             dockedComponent?.also {
                 dockedComponentProperty.value = null
@@ -315,6 +437,7 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
                     val listener = it.rootParentChangeListener
                     it.root.parentProperty().removeListener(listener)
                     it.callOnUndock()
+                    //println("Calling undock of ${it.title} from navigationModeChanged")
                     dock(it, true)
                     it.root.parentProperty().addListener(listener)
                 } else {
@@ -335,32 +458,33 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
 
     override fun onSave() {
         dockedComponentProperty.value
-                ?.takeIf { it.effectiveSavable.value }
-                ?.onSave()
+            ?.takeIf { it.effectiveSavable.value }
+            ?.onSave()
     }
 
     override fun onDelete() {
         dockedComponentProperty.value
-                ?.takeIf { it.effectiveDeletable.value }
-                ?.onDelete()
+            ?.takeIf { it.effectiveDeletable.value }
+            ?.onDelete()
     }
 
     override fun onCreate() {
         dockedComponentProperty.value
-                ?.takeIf { it.effectiveCreatable.value }
-                ?.onCreate()
+            ?.takeIf { it.effectiveCreatable.value }
+            ?.onCreate()
     }
 
     override fun onRefresh() {
         dockedComponentProperty.value
-                ?.takeIf { it.effectiveRefreshable.value }
-                ?.onRefresh()
+            ?.takeIf { it.effectiveRefreshable.value }
+            ?.onRefresh()
     }
 
     inline fun <reified T : UIComponent> dock(scope: Scope = this@Workspace.scope, params: Map<*, Any?>? = null) = dock(find<T>(scope, params))
     inline fun <reified T : UIComponent> dock(scope: Scope = this@Workspace.scope, vararg params: Pair<*, Any?>) { dock<T>(scope, params.toMap()) }
 
-    fun dock(child: UIComponent, forward: Boolean = true) {
+
+    fun dock(child: UIComponent, forward: Boolean = true, placement: Pos = Pos.CENTER) {
         if (child == dockedComponent) return
 
         // Remove everything after viewpos if moving forward
@@ -370,6 +494,7 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
 
         if (addToStack) viewStack += child
 
+        placementPos = placement
         setAsCurrentlyDocked(child)
 
         // Ensure max stack size
@@ -377,7 +502,11 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
             viewStack.removeAt(0)
     }
 
+
+
     private fun setAsCurrentlyDocked(child: UIComponent) {
+        if (child.workspace != workspace) child.scope.workspace(workspace)
+
         titleProperty.bind(child.titleProperty)
         rebindWorkspaceButtons(child)
 
@@ -457,6 +586,12 @@ open class Workspace(title: String = "Workspace", navigationMode: NavigationMode
     fun <T : UIComponent> dockInNewScope(uiComponent: T, vararg setInScope: ScopedInstance) {
         withNewScope(*setInScope) {
             dock(uiComponent)
+        }
+    }
+
+    fun <T : UIComponent> dockInNewScope(uiComponent: T, placement: Pos, vararg setInScope: ScopedInstance) {
+        withNewScope(*setInScope) {
+            dock(uiComponent, placement = placement)
         }
     }
 

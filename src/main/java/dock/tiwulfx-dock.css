@@ -1,0 +1,53 @@
+
+.dock-pos-indicator {
+	-fx-padding: 5;
+	-fx-shape: "M0,10 a10,10 0 1,0 20,0 a10,10 0 1,0 -20,0";
+	-fx-background-color: rgba(18, 109, 149, 0.4);
+	-fx-min-width: 130px;
+	-fx-min-height: 130px;
+	-fx-border-width: 40;
+	-fx-border-color: rgba(18, 109, 149, 0.2);
+}
+
+.adjacent-drop {
+	-fx-background-color: -fx-body-color;
+	-fx-border-width: 2;
+	-fx-border-color: -fx-focus-color;
+}
+
+.drop-left {
+	-fx-shape:"M10,0 L0,10 L10,20 Z";
+	-fx-min-height: 60px;
+	-fx-min-width: 30px;
+	-fx-max-height: 60px;
+	-fx-max-width: 30px;
+}
+
+.drop-right {
+	-fx-shape:"M10,0 L10,20 L20,10 Z";
+	-fx-min-height: 60px;
+	-fx-min-width: 30px;
+	-fx-max-height: 60px;
+	-fx-max-width: 30px;
+}
+
+.drop-top {
+	-fx-shape:"M10,0 L0,10 L20,10 Z";
+	-fx-min-height: 30px;
+	-fx-min-width: 60px;
+	-fx-max-height: 30px;
+	-fx-max-width: 60px;
+}
+.drop-bottom {
+	-fx-shape:"M0,0 L10,10 L20,0 Z";
+	-fx-min-height: 30px;
+	-fx-min-width: 60px;
+	-fx-max-height: 30px;
+	-fx-max-width: 60px;
+}
+
+.drop-path {
+	-fx-stroke : #bd362f;
+	-fx-stroke-width: 2;
+	-fx-stroke-line-join: bevel;
+}
