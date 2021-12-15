@@ -36,11 +36,11 @@ class TableViewDirtyTest : View("Dirty Tables") {
                 enableDirtyTracking()
                 selectOnDrag()
                 contextmenu {
-                    item(stringBinding(selectionModel.selectedCells) { "Rollback ${selectedColumn?.text}" }) {
+                    item(selectionModel.selectedCells.stringBinding { "Rollback ${selectedColumn?.text}" }) {
                         disableWhen { editModel.selectedItemDirty.not() }
                         action { editModel.rollback(selectedItem, selectedColumn) }
                     }
-                    item(stringBinding(selectionModel.selectedCells) { "Commit ${selectedColumn?.text}" }) {
+                    item(selectionModel.selectedCells.stringBinding { "Commit ${selectedColumn?.text}" }) {
                         disableWhen { editModel.selectedItemDirty.not() }
                         action { editModel.commit(selectedItem, selectedColumn) }
                     }
