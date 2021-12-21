@@ -644,76 +644,403 @@ fun ObservableValue<String>.isNotBlank(): BooleanBinding = booleanBinding { it?.
 infix fun StringExpression.eqIgnoreCase(other: String): BooleanBinding = isEqualToIgnoreCase(other)
 infix fun StringExpression.eqIgnoreCase(other: ObservableStringValue): BooleanBinding = isEqualToIgnoreCase(other)
 
-
+/**
+ * Creates an [IntegerBinding] that is dependent on this [ObservableValue].
+ *
+ * @param[op] a function that converts this observable's values to [Int], that is called every time the value of the
+ * observable changes. The parameter of [op] is the current value of the observable.
+ *
+ * @see Bindings.createIntegerBinding
+ */
 fun <T> ObservableValue<T>.integerBinding(op: (T?) -> Int): IntegerBinding
         = Bindings.createIntegerBinding(Callable { op(value) }, this)
 
+/**
+ * Creates an [IntegerBinding] that is dependent on [dependencies].
+ *
+ * @param[op] a function that returns [Int], that is called every time the value of any of the [dependencies] changes.
+ *
+ * Example:
+ * ```
+ * val prop1 = SimpleIntegerProperty(2)
+ * val prop2 = SimpleIntegerProperty(-6)
+ * val prop3 = SimpleIntegerProperty(4)
+ *
+ * val product = integerBinding(prop1, prop2, prop3) { prop1.value * prop2.value * prop3.value }
+ * ```
+ *
+ * @see Bindings.createIntegerBinding
+ */
 fun integerBinding(vararg dependencies: Observable, op: () -> Int): IntegerBinding
         = Bindings.createIntegerBinding(Callable { op() }, *dependencies)
 
+/**
+ * Creates an [IntegerBinding] that is dependent on this [ObservableList].
+ *
+ * @param[op] a function that is called every time the list changes (i.e. every time that [ObservableList.onChange]
+ * would be triggered otherwise). The parameter of [op] is the current state of the list itself.
+ *
+ * Example:
+ * ```
+ * val list = observableListOf(1, 2, 3)
+ *
+ * val sum = list.integerBinding { it.sum() }
+ * ```
+ * @see Bindings.createIntegerBinding
+ * @see ObservableList.onChange
+ */
 fun <T> ObservableList<T>.integerBinding(op: (List<T>) -> Int): IntegerBinding
         = Bindings.createIntegerBinding(Callable { op(this) }, this)
 
+/**
+ * Creates an [LongBinding] that is dependent on this [ObservableValue].
+ *
+ * @param[op] a function that converts this observable's values to [Long], that is called every time the value of the
+ * observable changes. The parameter of [op] is the current value of the observable.
+ *
+ * @see [Bindings.createLongBinding]
+ */
 fun <T> ObservableValue<T>.longBinding(op: (T?) -> Long): LongBinding
         = Bindings.createLongBinding(Callable { op(value) }, this)
 
+/**
+ * Creates an [LongBinding] that is dependent on [dependencies].
+ *
+ * @param[op] a function that returns [Long], that is called every time the value of any of the [dependencies] changes.
+ *
+ * Example:
+ * ```
+ * val prop1 = SimpleLongProperty(2L)
+ * val prop2 = SimpleLongProperty(-6L)
+ * val prop3 = SimpleLongProperty(4L)
+ *
+ * val product = longBinding(prop1, prop2, prop3) { prop1.value * prop2.value * prop3.value }
+ * ```
+ *
+ * @see Bindings.createLongBinding
+ */
 fun longBinding(vararg dependencies: Observable, op: () -> Long): LongBinding
         = Bindings.createLongBinding(Callable { op() }, *dependencies)
 
+/**
+ * Creates an [LongBinding] that is dependent on this [ObservableList].
+ *
+ * @param[op] a function that is called every time the list changes (i.e. every time that [ObservableList.onChange]
+ * would be triggered otherwise). The parameter of [op] is the current state of the list itself.
+ *
+ * Example:
+ * ```
+ * val list = observableListOf(1L, 2L, 3L)
+ *
+ * val sum = list.longBinding { it.sum() }
+ * ```
+ * @see Bindings.createLongBinding
+ * @see ObservableList.onChange
+ */
 fun <T> ObservableList<T>.longBinding(op: (List<T>) -> Long): LongBinding
         = Bindings.createLongBinding(Callable { op(this) }, this)
 
+/**
+ * Creates an [DoubleBinding] that is dependent on this [ObservableValue].
+ *
+ * @param[op] a function that converts this observable's values to [Double], that is called every time the value of the
+ *            observable changes. The parameter of [op] is the current value of the observable.
+ *
+ * @see [Bindings.createDoubleBinding]
+ */
 fun <T> ObservableValue<T>.doubleBinding(op: (T?) -> Double): DoubleBinding
         = Bindings.createDoubleBinding(Callable { op(value) }, this)
 
+/**
+ * Creates an [Double] that is dependent on [dependencies].
+ *
+ * @param[op] a function that returns [Double], that is called every time the value of any of the [dependencies] changes.
+ *
+ * Example:
+ * ```
+ * val prop1 = SimpleDoubleProperty(2.0)
+ * val prop2 = SimpleDoubleProperty(-6.0)
+ * val prop3 = SimpleDoubleProperty(4.0)
+ *
+ * val product = doubleBinding(prop1, prop2, prop3) { prop1.value * prop2.value * prop3.value }
+ * ```
+ *
+ * @see Bindings.createDoubleBinding
+ */
 fun doubleBinding(vararg dependencies: Observable, op: () -> Double): DoubleBinding
         = Bindings.createDoubleBinding(Callable { op() }, *dependencies)
 
+/**
+ * Creates an [DoubleBinding] that is dependent on this [ObservableList].
+ *
+ * @param[op] a function that is called every time the list changes (i.e. every time that [ObservableList.onChange]
+ * would be triggered otherwise). The parameter of [op] is the current state of the list itself.
+ *
+ * Example:
+ * ```
+ * val list = observableListOf(1, 2, 3)
+ *
+ * val average = list.doubleBinding { it.average() }
+ * ```
+ * @see Bindings.createDoubleBinding
+ * @see ObservableList.onChange
+ */
 fun <T> ObservableList<T>.doubleBinding(op: (List<T>) -> Double): DoubleBinding
         = Bindings.createDoubleBinding(Callable { op(this) }, this)
 
+/**
+ * Creates an [FloatBinding] that is dependent on this [ObservableValue].
+ *
+ * @param[op] a function that converts this observable's values to [Float], that is called every time the value of the
+ *            observable changes. The parameter of [op] is the current value of the observable.
+ *
+ * @see [Bindings.createFloatBinding]
+ */
 fun <T> ObservableValue<T>.floatBinding(op: (T?) -> Float): FloatBinding
         = Bindings.createFloatBinding(Callable { op(value) }, this)
 
+/**
+ * Creates an [FloatBinding] that is dependent on [dependencies].
+ *
+ * @param[op] a function that returns [Float], that is called every time the value of any of the [dependencies] changes.
+ *
+ * Example:
+ * ```
+ * val prop1 = SimpleFloatProperty(2f)
+ * val prop2 = SimpleFloatProperty(-6f)
+ * val prop3 = SimpleFloatProperty(4f)
+ *
+ * val product = floatBinding(prop1, prop2, prop3) { prop1.value * prop2.value * prop3.value }
+ * ```
+ *
+ * @see Bindings.createFloatBinding
+ */
 fun floatBinding(vararg dependencies: Observable, op: () -> Float): FloatBinding
         = Bindings.createFloatBinding(Callable { op() }, *dependencies)
 
+/**
+ * Creates an [FloatBinding] that is dependent on this [ObservableList].
+ *
+ * @param[op] a function that is called every time the list changes (i.e. every time that [ObservableList.onChange]
+ * would be triggered otherwise). The parameter of [op] is the current state of the list itself.
+ *
+ * Example:
+ * ```
+ * val list = observableListOf(1, 2, 3)
+ *
+ * val listAverage = list.floatBinding { it.average().toFloat() }
+ * ```
+ * @see Bindings.createFloatBinding
+ * @see ObservableList.onChange
+ */
 fun <T> ObservableList<T>.floatBinding(op: (List<T>) -> Float): FloatBinding
         = Bindings.createFloatBinding(Callable { op(this) }, this)
 
+/**
+ * Creates an [BooleanBinding] that is dependent on this [ObservableValue].
+ *
+ * @param[op] a function that converts this observable's values to [Boolean], that is called every time the value of the
+ *            observable changes. The parameter of [op] is the current value of the observable.
+ *
+ * @see [Bindings.createBooleanBinding]
+ */
 fun <T> ObservableValue<T>.booleanBinding(op: (T?) -> Boolean): BooleanBinding =
         Bindings.createBooleanBinding(Callable { op(value) }, this)
 
+/**
+ * Creates an [BooleanBinding] that is dependent on [dependencies].
+ *
+ * @param[op] a function that returns [Boolean], that is called every time the value of any of the [dependencies] changes.
+ *
+ * Example:
+ * ```
+ * val prop1 = SimpleBooleanProperty(true)
+ * val prop2 = SimpleIntegerProperty(-6)
+ * val prop3 = SimpleDoubleProperty(4.4)
+ *
+ * val binding = booleanBinding(prop1, prop2, prop3) {
+ *     prop1.value && prop2.value % 3 == 1 || prop3.value <= 5
+ * }
+ * ```
+ *
+ * @see Bindings.createBooleanBinding
+ */
 fun booleanBinding(vararg dependencies: Observable, op: () -> Boolean): BooleanBinding
         = Bindings.createBooleanBinding(Callable { op() }, *dependencies)
 
+/**
+ * Creates an [BooleanBinding] that is dependent on this [ObservableList].
+ *
+ * @param[op] a function that is called every time the list changes (i.e. every time that [ObservableList.onChange]
+ * would be triggered otherwise). The parameter of [op] is the current state of the list itself.
+ *
+ * Example:
+ * ```
+ * val numbers = observableListOf(1, 2, 3)
+ *
+ * val allSmallerThan5 = numbers.booleanBinding { list -> list.all { it < 5 }}
+ * ```
+ * @see Bindings.createBooleanBinding
+ * @see ObservableList.onChange
+ */
 fun <T> ObservableList<T>.booleanBinding(op: (List<T>) -> Boolean): BooleanBinding
         = Bindings.createBooleanBinding(Callable { op(this) }, this)
 
+/**
+ * Creates an [String] that is dependent on this [ObservableValue].
+ *
+ * @param[op] a function that converts this observable's values to [String], that is called every time the value of the
+ *            observable changes. The parameter of [op] is the current value of the observable.
+ *
+ * @see [Bindings.createStringBinding]
+ */
 fun <T> ObservableValue<T>.stringBinding(op: (T?) -> String?): StringBinding
         = Bindings.createStringBinding(Callable { op(value) }, this)
 
+/**
+ * Creates an [StringBinding] that is dependent on [dependencies].
+ *
+ * @param[op] a function that returns [String], that is called every time the value of any of the [dependencies] changes.
+ *
+ * Example:
+ * ```
+ * val prop1 = SimpleFloatProperty(2f)
+ * val prop2 = SimpleFloatProperty(-6f)
+ * val prop3 = SimpleFloatProperty(4f)
+ *
+ * val binding = stringBinding(prop1, prop2, prop3) { "${prop1.value} ${prop2.value} ${prop3.value}" }
+ * ```
+ *
+ * @see Bindings.createStringBinding
+ */
 fun stringBinding(vararg dependencies: Observable, op: () -> String?): StringBinding =
         Bindings.createStringBinding(Callable { op() }, *dependencies)
 
+/**
+ * Creates an [StringBinding] that is dependent on this [ObservableList].
+ *
+ * @param[op] a function that is called every time the list changes (i.e. every time that [ObservableList.onChange]
+ * would be triggered otherwise). The parameter of [op] is the current state of the list itself.
+ *
+ * Example:
+ * ```
+ * val guests = observableListOf("Anna", "Beatrice", "Charlotte")
+ *
+ * val guestList = guests.stringBinding { it.joinToString("\n") }
+ * ```
+ * @see Bindings.createStringBinding
+ * @see ObservableList.onChange
+ */
 fun <T> ObservableList<T>.stringBinding(op: (List<T>) -> String?): StringBinding
         = Bindings.createStringBinding(Callable { op(this) }, this)
 
+/**
+ * Creates an [ObjectBinding] that is dependent on this [ObservableValue].
+ *
+ * @param[op] a function that converts this observable's values to [R], that is called every time the value of the
+ *            observable changes. The parameter of [op] is the current value of the observable.
+ * This binding allows null values. In case the non-null version is needed, use [nonNullObjectBinding].
+ *
+ * @see [Bindings.createObjectBinding]
+ */
 fun <T, R> ObservableValue<T>.objectBinding(op: (T?) -> R?): ObjectBinding<R?>
         = Bindings.createObjectBinding(Callable { op(value) }, this)
 
+/**
+ * Creates an [ObjectBinding] that is dependent on [dependencies].
+ *
+ * @param[op] a function that returns [R], that is called every time the value of any of the [dependencies] changes.
+ *
+ * This binding allows null values. In case the non-null version is needed, use [nonNullObjectBinding].
+ *
+ * Example:
+ * ```
+ * val xCoord = SimpleDoubleProperty(0.0)
+ * val yCoord = SimpleDoubleProperty(0.0)
+ *
+ * val point2dProperty = objectBinding(xCoord, yCoord) { Point2D(xCoord.value, yCoord.value) }
+ * ```
+ *
+ * @see Bindings.createObjectBinding
+ */
 fun <R> objectBinding(vararg dependencies: Observable, op: () -> R?): ObjectBinding<R?>
         = Bindings.createObjectBinding(Callable { op() }, *dependencies)
 
+/**
+ * Creates an [ObjectBinding] that is dependent on this [ObservableList].
+ *
+ * @param[op] a function that is called every time the list changes (i.e. every time that [ObservableList.onChange]
+ * would be triggered otherwise). The parameter of [op] is the current state of the list itself.
+ *
+ * This binding allows null values. In case the non-null version is needed, use [nonNullObjectBinding].
+ *
+ * Example:
+ * ```
+ * val numbers = observableListOf(2.5, -3.0, 1.0, 5.0)
+ *
+ * val stats = numbers.objectBinding { list ->
+ *     if (list.isEmpty()) null else {
+ *         Stats(min = list.min(), max = list.max(), mean = list.average())
+ *     }
+ * }
+ * ```
+ * @see Bindings.createObjectBinding
+ * @see ObservableList.onChange
+ */
 fun <T, R> ObservableList<T>.objectBinding(op: (List<T>) -> R?): ObjectBinding<R?>
         = Bindings.createObjectBinding(Callable { op(this) }, this)
 
+/**
+ * Creates an [ObjectBinding] that is dependent on this [ObservableValue].
+ *
+ * @param[op] a function that converts this observable's values to [R], that is called every time the value of the
+ *            observable changes. The parameter of [op] is the current value of the observable.
+ * This binding is strictly non-null. In case you need the objects to be null, use [objectBinding].
+ *
+ * @see [Bindings.createObjectBinding]
+ */
 fun <T, R> ObservableValue<T>.nonNullObjectBinding(op: (T?) -> R): ObjectBinding<R>
         = Bindings.createObjectBinding(Callable { op(value) }, this)
 
+/**
+ * Creates an [ObjectBinding] that is dependent on [dependencies].
+ *
+ * @param[op] a function that returns [R], that is called every time the value of any of the [dependencies] changes.
+ *
+ * This binding is strictly non-null. In case you need the objects to be null, use [objectBinding].
+ *
+ * Example:
+ * ```
+ * val xCoord = SimpleDoubleProperty(0.0)
+ * val yCoord = SimpleDoubleProperty(0.0)
+ *
+ * val point2dProperty = objectBinding(xCoord, yCoord) { Point2D(xCoord.value, yCoord.value) }
+ * ```
+ *
+ * @see Bindings.createObjectBinding
+ */
 fun <R> nonNullObjectBinding(vararg dependencies: Observable, op: () -> R): ObjectBinding<R>
         = Bindings.createObjectBinding(Callable { op() }, *dependencies)
 
+/**
+ * Creates an [ObjectBinding] that is dependent on this [ObservableList].
+ *
+ * @param[op] a function that is called every time the list changes (i.e. every time that [ObservableList.onChange]
+ * would be triggered otherwise). The parameter of [op] is the current state of the list itself.
+ *
+ * This binding is strictly non-null. In case you need the objects to be null, use [objectBinding].
+ *
+ * Example:
+ * ```
+ * val numbers = observableListOf(2.5, -3.0, 1.0, 5.0)
+ *
+ * val stats = numbers.objectBinding { list ->
+ *     Stats(min = list.min(), max = list.max(), mean = list.average())
+ * }
+ * ```
+ * @see Bindings.createObjectBinding
+ * @see ObservableList.onChange
+ */
 fun <T, R> ObservableList<T>.nonNullObjectBinding(op: (List<T>) -> R): ObjectBinding<R>
         = Bindings.createObjectBinding(Callable { op(this) }, this)
 
