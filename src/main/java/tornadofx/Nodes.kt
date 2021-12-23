@@ -1145,9 +1145,9 @@ fun <T : Node> T.removeWhen(expr: () -> ObservableValue<Boolean>): T = removeWhe
  * if the given [predicate] observable boolean value equals true.
  */
 fun <T : Node> T.removeWhen(predicate: ObservableValue<Boolean>) = apply {
-    val remove = booleanBinding(predicate) { predicate.value.not() }
-    visibleProperty().cleanBind(remove)
-    managedProperty().cleanBind(remove)
+    val visible = predicate.booleanBinding { it == false }
+    visibleProperty().cleanBind(visible)
+    managedProperty().cleanBind(visible)
 }
 
 fun TextInputControl.editableWhen(predicate: ObservableValue<Boolean>) = apply {

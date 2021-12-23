@@ -72,7 +72,7 @@ class DataGridTest : View("DataGrid") {
             vbox {
                 add(paginator)
                 hbox {
-                    label(stringBinding(datagrid.selectionModel.selectedItems) { joinToString(", ") })
+                    label(datagrid.selectionModel.selectedItems.stringBinding { it.joinToString(", ") })
                     button("Remove from index 2").action {
                         if (list.size > 2) list.removeAt(2)
                     }
