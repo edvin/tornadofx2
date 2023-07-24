@@ -48,9 +48,6 @@ class TableViewTest {
             primaryStage.scene = Scene(root)
             primaryStage.show()
         }
-
-        val robot = FxRobot()
-        robot.robotContext().captureSupport.saveImage(robot.capture(primaryStage.scene.root).image, Paths.get("example-table.png"))
     }
 
     @Test
