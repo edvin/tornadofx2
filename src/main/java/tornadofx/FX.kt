@@ -516,12 +516,11 @@ fun EventTarget.addChildIfPossible(node: Node, index: Int? = null) {
     if (FX.childInterceptors.dropWhile { !it(this, node, index) }.isNotEmpty()) return
 
     if (FX.ignoreParentBuilder != FX.IgnoreParentBuilder.No) return
-    if (this is Node) {
+
+    if (this is Node && builderTarget != null) {
         val target = builderTarget
         if (target != null) {
-            // Trick to get around the disallowed use of invoke on out projected types
-            @Suppress("UNNECESSARY_NOT_NULL_ASSERTION")
-            target!!(this).value = node
+            target(this).value = node
             return
         }
     }

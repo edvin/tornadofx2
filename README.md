@@ -1,15 +1,8 @@
-# TornadoFX v2 (Gradle)
+# TornadoFX v2
 
 A JavaFX framework for Kotlin (Java 11+)
 
-This (experimental) branch is gradle based.
-Current state: TODO
-
-* Kotlin & Java target is Java 11.0.2
-* JavaFX version is 15.0.1
-* JUnit5 with additional vintage engine for unit testing
-* Tests running on classpath ignoring javas module system 
-* no support for OSGI bundle
+Current state: [![Build Status](https://travis-ci.com/confinitum/tornadofx2.svg)](https://travis-ci.com/confinitum/tornadofx2)
 
 ## Features
 
@@ -25,9 +18,8 @@ Current state: TODO
 
 ## Requirements
 
-* JDK 11+
-* [Kotlin 1.3+](https://kotlinlang.org/)
-* [JavaFX 13+](https://openjfx.io/)
+* [Kotlin 1.4+](https://kotlinlang.org/)
+* [JavaFX 15+](https://openjfx.io/)
 
 ## Installation
 
@@ -52,3 +44,11 @@ Please use the GitHub [issues](https://github.com/edvin/tornadofx2/issues) for a
 
 * [Edvin Syse](https://github.com/edvin)
 * [GoToTags](https://gototags.com/) / [Craig Tadlock](https://www.linkedin.com/in/ctadlock/)
+
+## Developer Info
+
+* Kotlin & Java target is Java 11
+* JUnit5 plus vintage engine for unit testing
+* Tests running on classpath ignoring javas module system
+* no support for OSGI bundle
+
