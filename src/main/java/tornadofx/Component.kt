@@ -171,7 +171,7 @@ abstract class Component : Configurable {
     val properties by lazy { FXCollections.observableHashMap<Any, Any>() }
     val log by lazy { Logger.getLogger(this@Component.javaClass.name) }
 
-    val app: App get() = FX.application as App
+    val app: App get() = FX.getApplication(scope) as App
 
     private val _messages: SimpleObjectProperty<ResourceBundle> = object : SimpleObjectProperty<ResourceBundle>() {
         override fun get(): ResourceBundle? {
